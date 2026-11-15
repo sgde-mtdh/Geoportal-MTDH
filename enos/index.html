@@ -157,4 +157,28 @@ document.getElementById('clear-filters').addEventListener('click',()=>{
 document.querySelectorAll('.modules button[data-topic="amenazas"]').forEach(button=>{
 button.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();window.location.href='zonas/index.html?version=20261115f';},true);
 });
-</script><script id="events-integrated-navigation-v1">document.querySelectorAll('.modules button[data-topic="eventos"]').forEach(button=>button.addEventListener("click",event=>{event.preventDefault();event.stopImmediatePropagation();window.location.href="eventos/index.html";},true));</script><script id="shelters-standalone-navigation-v1">document.querySelectorAll('.modules button[data-topic="alojamientos"]').forEach(button=>button.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();window.location.href='alojamientos/index.html';},true));</script></body></html>
+</script><script id="events-integrated-navigation-v1">document.querySelectorAll('.modules button[data-topic="eventos"]').forEach(button=>button.addEventListener("click",event=>{event.preventDefault();event.stopImmediatePropagation();window.location.href="eventos/index.html";},true));</script><script id="shelters-standalone-navigation-v1">document.querySelectorAll('.modules button[data-topic="alojamientos"]').forEach(button=>button.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();window.location.href='alojamientos/index.html';},true));</script><style id="unidades-recovery-v18">
+body.enos-unidades-visible #module-dashboard{display:block!important;visibility:visible!important;opacity:1!important}
+body.enos-unidades-visible .workspace{display:grid!important;visibility:visible!important;opacity:1!important}
+body.enos-unidades-visible #amenazas-visualizador{display:none!important}
+body.enos-unidades-visible #unit-controls{display:block!important}
+</style><script id="unidades-recovery-v18-script">
+(function(){
+const show=()=>{
+ document.body.classList.remove('enos-zonas-activas');
+ document.body.classList.add('enos-unidades-visible');
+ const dashboard=document.getElementById('module-dashboard');
+ const workspace=document.querySelector('.workspace');
+ const integrated=document.getElementById('amenazas-visualizador');
+ if(integrated)integrated.style.display='none';
+ if(dashboard)dashboard.style.display='block';
+ if(workspace)workspace.style.display='grid';
+ setTimeout(()=>{window.dispatchEvent(new Event('resize'));dashboard?.scrollIntoView({behavior:'smooth',block:'start'});},180);
+};
+document.querySelectorAll('button[data-topic="unidades"]').forEach(b=>b.addEventListener('click',show));
+document.querySelectorAll('button[data-topic]:not([data-topic="unidades"])').forEach(b=>b.addEventListener('click',()=>document.body.classList.remove('enos-unidades-visible')));
+if(new URLSearchParams(location.search).get('modulo')==='unidades'){
+ window.addEventListener('load',()=>{document.querySelector('button[data-topic="unidades"]')?.click();show()});
+}
+})();
+</script></body></html>
