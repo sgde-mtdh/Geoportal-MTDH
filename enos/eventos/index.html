@@ -44,6 +44,50 @@ header.module-header{background:#10243e;color:white;padding:15px 30px;display:fl
 @media(max-width:1050px){.workspace{grid-template-columns:minmax(0,1fr) 280px}.filters label{font-size:15px}}
 @media(max-width:850px){.workspace,.bottom{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.wrap{padding:12px 16px}.module-header h1{font-size:25px}}
 @media(max-width:520px){.portal-nav{padding:8px 10px;gap:6px}.portal-nav a{padding:8px 9px;font-size:12px}.module-header{padding:13px 16px}.module-header h1{font-size:22px}.filters label{min-width:100%;font-size:16px}.kpi{padding:13px;min-height:108px}.kpi b{font-size:27px}.kpi span{font-size:12px}#map{height:430px}}
+</style><style id="susceptibility-dark-parity-v3">
+/* Replica la apariencia azul profunda del módulo de susceptibilidad vigente. */
+:root{--navy:#10243e;--blue:#153e64;--cyan:#69b9e9;--yellow:#f4c742;--ink:#f3f9ff;--muted:#bed4e8;--bg:#0a2343;--line:#416b95}
+html{background:#081d3b}
+body{background:linear-gradient(150deg,#081d3b,#0c335e 55%,#081f3d)!important;color:#f5faff!important}
+.module-header{background:#10243e!important;border-bottom:4px solid #f4c742!important}
+.wrap{background:transparent!important}
+.intro{background:linear-gradient(120deg,#122f55,#173b65)!important;border:1px solid #4b709b!important;border-left:4px solid #70c8ed!important;color:#f3f9ff!important;border-radius:12px!important;box-shadow:0 6px 18px #03152d33}
+.intro strong{color:#f5faff!important;font-size:23px!important}
+.intro p{color:#d4e7f9!important}
+.kpis{background:linear-gradient(125deg,#122f55,#173b65)!important;border:1px solid #4b709b!important;border-radius:14px!important;padding:15px 18px!important;gap:11px!important}
+.kpi{background:#203d64!important;border:1px solid #4a729d!important;border-top:3px solid #69b9e9!important;border-radius:9px!important;min-height:128px!important;box-shadow:none!important}
+.kpi b{color:#fff!important;font:800 clamp(27px,2.2vw,35px)/1.15 'Barlow Condensed',Barlow,sans-serif!important}
+.kpi span{color:#d4e6f8!important;font:700 13px/1.35 Barlow,Arial,sans-serif!important}
+.filters{background:#132c50!important;border:1px solid #4b709b!important;border-radius:12px!important;padding:16px!important}
+.filters label{color:#eaf6ff!important}
+.filters select{background:#203d64!important;color:#fff!important;border:1px solid #7299c2!important}
+.filters select option{background:#17365c;color:#fff}
+.panel{background:#132c50!important;border:1px solid #4b709b!important;border-radius:12px!important;box-shadow:0 7px 22px #03152d33!important}
+.panel h2{background:linear-gradient(90deg,#153a63,#245580)!important;color:#fff!important;border-bottom:1px solid #4e82b1!important;font:800 23px 'Barlow Condensed',Barlow,sans-serif!important}
+.workspace .panel:first-child{background:#0f2d52!important;padding:12px!important;border-color:#6b99c5!important}
+.workspace .panel:first-child h2{border-radius:9px 9px 0 0!important}
+#map{border:2px solid #88b2d4!important;border-radius:0 0 8px 8px!important;box-shadow:0 8px 24px #03152d55!important;filter:none!important}
+.legend{background:#202e41!important;border:1px solid #53769b!important;color:#f6faff!important;border-radius:8px!important;margin-top:9px!important}
+.status{background:#18385e!important;color:#d4e7f9!important;border-radius:7px!important;margin-top:8px!important}
+.detail{color:#eaf4ff!important}
+.detail h3{color:#fff!important}
+.detail .metric{color:#d4e7f9!important;border-color:#45658b!important}
+.detail .metric strong{color:#fff!important}
+.note{color:#c1d6eb!important}
+.alert{background:#203d64!important;color:#e4f0fb!important;border-left:4px solid #f4c742!important}
+.btn{background:#28608d!important;color:#fff!important;border:1px solid #7ab1dd!important}
+.chart{color:#eaf4ff!important}
+#trend text{fill:#d4e7f9!important}
+#trend path{stroke:#6f95b8!important}
+#trend polyline{stroke:#73c9f2!important}
+#trend circle{fill:#73c9f2!important}
+.barrow{color:#eaf4ff!important}
+.barrow b{color:#fff!important}
+.bartrack{background:#315375!important}
+.barfill{background:#70c8ed!important}
+.bottom .panel{min-height:315px}
+.bottom .panel h2{font-size:21px!important}
+@media(max-width:850px){.workspace .panel:first-child{padding:8px!important}.kpis{padding:10px!important;gap:9px!important}.kpi{min-height:125px!important}.intro{padding:15px!important}}
 </style></head><body><nav class="portal-nav" aria-label="Navegación del Geoportal"><a href="../../index.html">← Menú principal</a><a href="../index.html">← Menú ENOS</a><a href="../../servicios/index.html">Servicios para la ciudadanía</a></nav><header class="module-header"><div><small>GEOPORTAL ENOS · EVENTO EL NIÑO 2026–2027</small><h1>Eventos, afectaciones y respuesta interinstitucional</h1></div><div class="header-dots" aria-hidden="true"><i></i><i></i><i></i></div></header><main class="wrap"><section class="intro"><strong>Susceptibilidad, afectaciones y respuesta territorial</strong><p>Comparación de las áreas susceptibles a inundaciones y movimientos en masa con los eventos y las afectaciones registrados por la Secretaría Nacional de Gestión de Riesgos (SNGR). Corte de afectaciones: SITREP 88, 14 de noviembre de 2026, 16:00.</p></section><section class="kpis"><div class="kpi"><b id="k-events">1.500</b><span>Eventos adversos acumulados</span></div><div class="kpi"><b id="k-people">77.498</b><span>Personas impactadas acumuladas</span></div><div class="kpi"><b>24</b><span>Provincias con eventos</span></div><div class="kpi"><b id="k-aid">32.312</b><span>Bienes de asistencia humanitaria SNGR</span></div></section><section class="filters"><label>Susceptibilidad territorial<select id="hazard"><option value="both">Inundaciones y movimientos en masa</option><option value="inundaciones">Solo inundaciones</option><option value="movimientos">Solo movimientos en masa</option><option value="none">Ocultar susceptibilidad</option></select></label><label>Indicador de afectación<select id="indicator"><option value="people">Personas impactadas</option><option value="events">Eventos registrados</option></select></label><label>Provincia<select id="province"><option value="">Todas las provincias</option></select></label><label>SITREP histórico<select id="sitrep"></select></label></section><section class="workspace"><div class="panel"><h2>Mapa territorial integrado</h2><div id="map"></div><div class="legend"><span><i class="dot" style="background:#3d79ab"></i>Mayor afectación registrada (intensidad del azul)</span><span><i class="dot" style="background:#df684c"></i>Susceptibilidad a inundaciones</span><span><i class="dot" style="background:#b28b3d"></i>Susceptibilidad a movimientos en masa</span></div><div class="status" id="status">Cargando límites provinciales...</div></div><aside class="panel"><h2>Ficha territorial</h2><div class="detail"><h3 id="place">Ecuador</h3><div class="metric"><span>Eventos registrados</span><strong id="ev">1.500</strong></div><div class="metric"><span>Personas impactadas</span><strong id="pe">77.498</strong></div><div class="metric"><span>Asistencia humanitaria SNGR</span><strong id="aid">32.312 bienes (nacional)</strong></div><div class="metric"><span>Susceptibilidad</span><strong id="sus">Ambas amenazas</strong></div><div class="alert" id="caution">La coincidencia provincial no demuestra que un evento ocurrió dentro de un polígono susceptible ni que la asistencia llegó a todas las personas afectadas.</div><p class="note">Las cifras provinciales corresponden al SITREP 88. La asistencia humanitaria se presenta solo a escala nacional hasta contar con una tabla provincial validada. No se suman bienes de la SNGR con kits del MTDH.</p><button class="btn" id="reset">Restablecer vista nacional</button></div></aside></section><section class="bottom"><div class="panel"><h2>Evolución de los cortes SITREP</h2><div class="chart"><svg id="trend" viewBox="0 0 640 205" role="img" aria-label="Evolución de valores acumulados por SITREP"></svg><p class="note" id="trendnote">Cada punto corresponde al acumulado reportado en un SITREP; las variaciones entre cortes no equivalen necesariamente a eventos nuevos.</p></div></div><div class="panel"><h2>Provincias con mayores registros</h2><div class="chart" id="ranking"></div></div></section><section class="intro" style="margin-top:15px"><strong>Alcance y trazabilidad</strong><p>Los eventos y las afectaciones se muestran por provincia según el SITREP 88. Los polígonos de susceptibilidad proceden de las capas oficiales ya utilizadas por el módulo de zonas susceptibles. La comparación es exploratoria y administrativa: no se ha calculado aún la intersección geográfica evento-polígono ni una cobertura efectiva de respuesta.</p><p>Serie histórica: 82 SITREP distintos disponibles entre los números 1 y 88. Faltan los números 5, 6, 16, 18, 68 y 82; algunas cifras se revisaron entre cortes. La selección histórica modifica el gráfico y los indicadores nacionales; no modifica la distribución provincial del último SITREP.</p></section></main><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>
 'use strict';
 const PROVINCES=[["AZUAY",51,323],["BOLÍVAR",94,713],["CAÑAR",15,38],["CARCHI",7,20],["CHIMBORAZO",21,90],["COTOPAXI",23,2],["EL ORO",114,11657],["ESMERALDAS",128,25354],["GALÁPAGOS",15,2954],["GUAYAS",359,19600],["IMBABURA",17,103],["LOJA",19,139],["LOS RÍOS",196,6025],["MANABÍ",140,4210],["MORONA SANTIAGO",20,55],["NAPO",8,10],["ORELLANA",17,122],["PASTAZA",12,26],["PICHINCHA",128,318],["SANTA ELENA",43,5514],["SANTO DOMINGO DE LOS TSÁCHILAS",61,181],["SUCUMBÍOS",1,4],["TUNGURAHUA",5,0],["ZAMORA CHINCHIPE",6,40]];
