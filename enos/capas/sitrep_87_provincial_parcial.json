@@ -1,0 +1,64 @@
+{
+  "source": "SNGR SITREP Nro. 87",
+  "cutoff": "2026-11-13T15:00:00",
+  "period_start": "2026-08-29",
+  "scope": "Acumulado; tabla parcial de siete provincias transcritas del SITREP 87; no es una serie completa",
+  "national": {
+    "eventos": 1475,
+    "impactadas": 73751,
+    "familias_afectadas": 15210,
+    "familias_damnificadas": 12419
+  },
+  "rows": [
+    {
+      "provincia": "ESMERALDAS",
+      "eventos": 128,
+      "impactadas": 25354,
+      "familias_afectadas": null,
+      "familias_damnificadas": null
+    },
+    {
+      "provincia": "GUAYAS",
+      "eventos": 342,
+      "impactadas": 16100,
+      "familias_afectadas": null,
+      "familias_damnificadas": null
+    },
+    {
+      "provincia": "EL ORO",
+      "eventos": 114,
+      "impactadas": 11657,
+      "familias_afectadas": null,
+      "familias_damnificadas": null
+    },
+    {
+      "provincia": "LOS RÍOS",
+      "eventos": 194,
+      "impactadas": 6025,
+      "familias_afectadas": null,
+      "familias_damnificadas": null
+    },
+    {
+      "provincia": "SANTA ELENA",
+      "eventos": 43,
+      "impactadas": 5514,
+      "familias_afectadas": null,
+      "familias_damnificadas": null
+    },
+    {
+      "provincia": "MANABÍ",
+      "eventos": 139,
+      "impactadas": 3999,
+      "familias_afectadas": null,
+      "familias_damnificadas": null
+    },
+    {
+      "provincia": "GALÁPAGOS",
+      "eventos": 12,
+      "impactadas": 2950,
+      "familias_afectadas": null,
+      "familias_damnificadas": null
+    }
+  ],
+  "caution": "Las provincias no incluidas no deben interpretarse como cero. Los datos cantonales y parroquiales no se infieren de totales provinciales. No atribuir las afectaciones a una institución ejecutora."
+}
