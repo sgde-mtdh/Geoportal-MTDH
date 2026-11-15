@@ -1,12 +1,15 @@
 {
-  "source": "SNGR SITREP Nro. 87",
+  "source": "SNGR SITREP Nacional Nro. 87",
+  "source_url": "https://www.gestionderiesgos.gob.ec/wp-content/uploads/2026/11/SitRep-No-87-Lluvias-29082026-al-13112026-15h00.pdf",
   "cutoff": "2026-11-13T15:00:00",
   "period_start": "2026-08-29",
-  "scope": "Acumulado; tabla parcial de siete provincias transcritas del SITREP 87; no es una serie completa",
+  "scope": "Acumulado nacional y 24 provincias; tabla oficial sección 4 páginas 3 y 4 del SITREP 87",
   "national": {
     "eventos": 1475,
     "impactadas": 73751,
+    "personas_afectadas": 46965,
     "familias_afectadas": 15210,
+    "personas_damnificadas": 26786,
     "familias_damnificadas": 12419
   },
   "rows": [
@@ -14,51 +17,218 @@
       "provincia": "ESMERALDAS",
       "eventos": 128,
       "impactadas": 25354,
-      "familias_afectadas": null,
-      "familias_damnificadas": null
+      "personas_afectadas": 14841,
+      "familias_afectadas": 4144,
+      "personas_damnificadas": 10513,
+      "familias_damnificadas": 3771
     },
     {
       "provincia": "GUAYAS",
       "eventos": 342,
       "impactadas": 16100,
-      "familias_afectadas": null,
-      "familias_damnificadas": null
+      "personas_afectadas": 14065,
+      "familias_afectadas": 4423,
+      "personas_damnificadas": 2035,
+      "familias_damnificadas": 806
     },
     {
       "provincia": "EL ORO",
       "eventos": 114,
       "impactadas": 11657,
-      "familias_afectadas": null,
-      "familias_damnificadas": null
+      "personas_afectadas": 4398,
+      "familias_afectadas": 2568,
+      "personas_damnificadas": 7259,
+      "familias_damnificadas": 4532
     },
     {
       "provincia": "LOS RÍOS",
       "eventos": 194,
       "impactadas": 6025,
-      "familias_afectadas": null,
-      "familias_damnificadas": null
+      "personas_afectadas": 3624,
+      "familias_afectadas": 1088,
+      "personas_damnificadas": 2401,
+      "familias_damnificadas": 1357
     },
     {
       "provincia": "SANTA ELENA",
       "eventos": 43,
       "impactadas": 5514,
-      "familias_afectadas": null,
-      "familias_damnificadas": null
+      "personas_afectadas": 5472,
+      "familias_afectadas": 1372,
+      "personas_damnificadas": 42,
+      "familias_damnificadas": 9
     },
     {
       "provincia": "MANABÍ",
       "eventos": 139,
       "impactadas": 3999,
-      "familias_afectadas": null,
-      "familias_damnificadas": null
+      "personas_afectadas": 2497,
+      "familias_afectadas": 951,
+      "personas_damnificadas": 1502,
+      "familias_damnificadas": 623
     },
     {
       "provincia": "GALÁPAGOS",
       "eventos": 12,
       "impactadas": 2950,
-      "familias_afectadas": null,
-      "familias_damnificadas": null
+      "personas_afectadas": 327,
+      "familias_afectadas": 136,
+      "personas_damnificadas": 2623,
+      "familias_damnificadas": 1193
+    },
+    {
+      "provincia": "BOLÍVAR",
+      "eventos": 93,
+      "impactadas": 681,
+      "personas_afectadas": 585,
+      "familias_afectadas": 187,
+      "personas_damnificadas": 96,
+      "familias_damnificadas": 33
+    },
+    {
+      "provincia": "AZUAY",
+      "eventos": 50,
+      "impactadas": 323,
+      "personas_afectadas": 194,
+      "familias_afectadas": 64,
+      "personas_damnificadas": 129,
+      "familias_damnificadas": 39
+    },
+    {
+      "provincia": "PICHINCHA",
+      "eventos": 128,
+      "impactadas": 318,
+      "personas_afectadas": 276,
+      "familias_afectadas": 76,
+      "personas_damnificadas": 42,
+      "familias_damnificadas": 11
+    },
+    {
+      "provincia": "SANTO DOMINGO DE LOS TSÁCHILAS",
+      "eventos": 61,
+      "impactadas": 181,
+      "personas_afectadas": 158,
+      "familias_afectadas": 57,
+      "personas_damnificadas": 23,
+      "familias_damnificadas": 8
+    },
+    {
+      "provincia": "LOJA",
+      "eventos": 19,
+      "impactadas": 139,
+      "personas_afectadas": 122,
+      "familias_afectadas": 42,
+      "personas_damnificadas": 17,
+      "familias_damnificadas": 5
+    },
+    {
+      "provincia": "ORELLANA",
+      "eventos": 17,
+      "impactadas": 122,
+      "personas_afectadas": 86,
+      "familias_afectadas": 24,
+      "personas_damnificadas": 36,
+      "familias_damnificadas": 11
+    },
+    {
+      "provincia": "IMBABURA",
+      "eventos": 17,
+      "impactadas": 103,
+      "personas_afectadas": 81,
+      "familias_afectadas": 16,
+      "personas_damnificadas": 22,
+      "familias_damnificadas": 7
+    },
+    {
+      "provincia": "CHIMBORAZO",
+      "eventos": 21,
+      "impactadas": 90,
+      "personas_afectadas": 84,
+      "familias_afectadas": 21,
+      "personas_damnificadas": 6,
+      "familias_damnificadas": 2
+    },
+    {
+      "provincia": "MORONA SANTIAGO",
+      "eventos": 20,
+      "impactadas": 55,
+      "personas_afectadas": 48,
+      "familias_afectadas": 12,
+      "personas_damnificadas": 7,
+      "familias_damnificadas": 2
+    },
+    {
+      "provincia": "ZAMORA CHINCHIPE",
+      "eventos": 6,
+      "impactadas": 40,
+      "personas_afectadas": 40,
+      "familias_afectadas": 10,
+      "personas_damnificadas": 0,
+      "familias_damnificadas": 0
+    },
+    {
+      "provincia": "CAÑAR",
+      "eventos": 15,
+      "impactadas": 38,
+      "personas_afectadas": 30,
+      "familias_afectadas": 6,
+      "personas_damnificadas": 8,
+      "familias_damnificadas": 2
+    },
+    {
+      "provincia": "PASTAZA",
+      "eventos": 12,
+      "impactadas": 26,
+      "personas_afectadas": 11,
+      "familias_afectadas": 2,
+      "personas_damnificadas": 15,
+      "familias_damnificadas": 3
+    },
+    {
+      "provincia": "CARCHI",
+      "eventos": 7,
+      "impactadas": 20,
+      "personas_afectadas": 12,
+      "familias_afectadas": 6,
+      "personas_damnificadas": 8,
+      "familias_damnificadas": 3
+    },
+    {
+      "provincia": "NAPO",
+      "eventos": 8,
+      "impactadas": 10,
+      "personas_afectadas": 10,
+      "familias_afectadas": 2,
+      "personas_damnificadas": 0,
+      "familias_damnificadas": 0
+    },
+    {
+      "provincia": "SUCUMBÍOS",
+      "eventos": 1,
+      "impactadas": 4,
+      "personas_afectadas": 4,
+      "familias_afectadas": 1,
+      "personas_damnificadas": 0,
+      "familias_damnificadas": 0
+    },
+    {
+      "provincia": "COTOPAXI",
+      "eventos": 23,
+      "impactadas": 2,
+      "personas_afectadas": 0,
+      "familias_afectadas": 2,
+      "personas_damnificadas": 2,
+      "familias_damnificadas": 2
+    },
+    {
+      "provincia": "TUNGURAHUA",
+      "eventos": 5,
+      "impactadas": 0,
+      "personas_afectadas": 0,
+      "familias_afectadas": 0,
+      "personas_damnificadas": 0,
+      "familias_damnificadas": 0
     }
   ],
-  "caution": "Las provincias no incluidas no deben interpretarse como cero. Los datos cantonales y parroquiales no se infieren de totales provinciales. No atribuir las afectaciones a una institución ejecutora."
+  "caution": "Cifras acumuladas; los SITREP están sujetos a revisión. Las cifras cantonales y parroquiales requieren SITREP territoriales; no imputar a niveles inferiores. Los ceros provienen de guiones de la tabla original."
 }
