@@ -160,11 +160,11 @@ function prepareCartographicSheet(){
  if(state.province)names.push('Provincia: '+territoryName('provincias',state.province));
  if(state.canton)names.push('Cantón: '+territoryName('cantones',state.canton));
  if(state.parish)names.push('Parroquia: '+territoryName('parroquias',state.parish));
- $('sheet-territory').textContent=names.join(' · ')||'Ecuador';
+ $('sheet-territory').textContent=names.length?'COBERTURA TERRITORIAL · '+names.join(' · '):'COBERTURA NACIONAL · ECUADOR';
  $('sheet-legend').innerHTML=legendMarkup();
  $('sheet-date').textContent='Fecha y hora (Ecuador): '+new Intl.DateTimeFormat('es-EC',{timeZone:'America/Guayaquil',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
  $('sheet-source').textContent='Cartografía de susceptibilidad: SNGR. Límites administrativos: referencia 2024.';
- slot.appendChild(mapbox);map.invalidateSize();renderLocationInsets();setTimeout(()=>{map.invalidateSize();if(state.outline?.getLayers().length){const b=state.province?state.outline.getBounds():L.latLngBounds([[-5.03,-81.0],[1.43,-75.16]]);map.fitBounds(b,{padding:[22,22],maxZoom:state.parish?13:state.canton?11:9});}gridSafeForPrint();},300);
+ slot.appendChild(mapbox);renderLocationInsets();const alignSheetMap=()=>{map.invalidateSize({pan:false});const b=state.province&&state.outline?.getLayers().length?state.outline.getBounds():L.latLngBounds([[-5.03,-81.0],[1.43,-75.16]]);map.fitBounds(b,{animate:false,padding:[8,8],maxZoom:state.parish?13:state.canton?11:9});map.invalidateSize({pan:false});gridSafeForPrint();};requestAnimationFrame(()=>requestAnimationFrame(alignSheetMap));setTimeout(alignSheetMap,450);setTimeout(alignSheetMap,1400);
 }
 $('print-map').addEventListener('click',()=>{
  const params=new URLSearchParams({print:'1',threat:state.threat,province:state.province,canton:state.canton,parish:state.parish,category:state.category});
@@ -181,7 +181,7 @@ Promise.all([getJSON('capas/territorios.json'),getJSON('capas/superficies.json')
  const printableBounds=()=>state.province&&state.outline?.getLayers().length?state.outline.getBounds():L.latLngBounds([[-5.03,-81],[1.43,-75.16]]);
  const prepareMapForPrint=()=>{
   map.invalidateSize({pan:false});
-  map.fitBounds(printableBounds(),{animate:false,padding:[18,18],maxZoom:state.parish?13:state.canton?11:9});
+  map.fitBounds(printableBounds(),{animate:false,padding:[8,8],maxZoom:state.parish?13:state.canton?11:9});
   map.invalidateSize({pan:false});
   gridSafeForPrint();
  };
