@@ -155,9 +155,12 @@ function prepareCartographicSheet(){
  const mapbox=document.querySelector('.layout .mapbox'),slot=$('sheet-map-slot');
  printRestore={parent:mapbox.parentNode,next:mapbox.nextSibling};
  $('sheet-title').textContent='Mapa de susceptibilidad a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');
- const prov=state.admin?.provincias?.find(x=>x.id===state.province)?.name||'Todas las provincias';
- const cant=state.admin?.cantones?.find(x=>x.id===state.canton)?.name||'Todos los cantones';
- $('sheet-territory').textContent='Provincia: '+prov+' · Cantón: '+cant+(state.parish?' · Parroquia: '+(state.admin?.parroquias?.find(x=>x.id===state.parish)?.name||state.parish):'');
+ const territoryName=(key,id)=>{const list=state.admin?.[key];if(Array.isArray(list)){const x=list.find(v=>String(v.id)===String(id));if(x)return x.name||x.nombre||id;}const collection=state.bounds?.[key]?.features;return collection?.find(f=>String(f.properties?.id)===String(id))?.properties?.name||id;};
+ const names=[];
+ if(state.province)names.push('Provincia: '+territoryName('provincias',state.province));
+ if(state.canton)names.push('Cantón: '+territoryName('cantones',state.canton));
+ if(state.parish)names.push('Parroquia: '+territoryName('parroquias',state.parish));
+ $('sheet-territory').textContent=names.join(' · ')||'Ecuador';
  $('sheet-legend').innerHTML=legendMarkup();
  $('sheet-date').textContent='Fecha y hora (Ecuador): '+new Intl.DateTimeFormat('es-EC',{timeZone:'America/Guayaquil',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
  $('sheet-source').textContent='Cartografía de susceptibilidad: SNGR. Límites administrativos: referencia 2024.';
