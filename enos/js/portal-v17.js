@@ -3,7 +3,8 @@ const $=id=>document.getElementById(id),fmt=x=>Number(x||0).toLocaleString('es-E
 const title={amenazas:'Zonas susceptibles',unidades:'Unidades de atención expuestas',poblacion:'Población potencialmente expuesta',proyeccion:'Proyección de kits mínimos',alojamientos:'Alojamientos temporales identificados',eventos:'Eventos y afectaciones',kits:'Kits entregados',brigadas:'Brigadas de emergencia',bonos:'Bonos de contingencia'};
 const pal=['#b9d8e9','#83b9d5','#488ab9','#28628f','#113d68'];
 const pin=L.layerGroup().addTo(map);let mode='amenazas',units=[],exposure=[],operations={kits:[],bonos:[]},series=[],esmeraldas=null,centers={},historicalMode='sitrep',indicator='familias',month='noviembre',bonusMetric='cobrados',stock=null,brigades=[],shelters=[],shelterModality='',shelterQualification='';
-const selected=x=>(!$('province').value||norm(x.p)===norm($('province').value))&&(!$('canton').value||norm(x.c)===norm($('canton').value))&&(!$('parish').value||norm(x.r)===norm($('parish').value));
+const selected=x=>(!$('province').value||norm(x.p)===norm($('province').value))&&(!$('canton').value||!x.c||norm(x.c)===norm($('canton').value))&&(!$('parish').value||!x.r||norm(x.r)===norm($('parish').value));
+const scopeNote=a=>($('canton').value||$('parish').value)&&a.some(x=>!x.c)?'Los registros de este indicador solo tienen desglose provincial. Los filtros de cantón y parroquia no se aplican a esos registros.':'';
 const ex=v=>['MEDIA','ALTA','MUY ALTA'].includes(norm(v));const threat=()=>$('threat-select').value;
 const card=(name,value,note='')=>`<div class="module-metric"><small>${name}</small><strong>${typeof value==='number'?fmt(value):value}</strong>${note?`<span>${note}</span>`:''}</div>`;
 const sum=(a,k)=>a.reduce((v,x)=>v+Number(x[k]||0),0);
@@ -88,36 +89,36 @@ function render(){pin.clearLayers();hideFlood();$('module-heading').textContent=
   $('module-description').textContent='Registro preventivo de infraestructura evaluada; no representa alojamientos activados desde el 29/08/2026.';
  }else if(mode==='kits'){
   const a=(operations.kits||[]).filter(x=>selected(x)&&(!x.fecha||(x.fecha>='2026-08-29'&&x.fecha<='2026-11-08')));$('module-tag').textContent='Registro institucional de entregas · corte 08/11/2026';
-  el.innerHTML=card('Kits entregados reportados',sum(a,'kits'))+card('Familias reportadas',sum(a,'familias'))+card('Provincias con registros',new Set(a.map(x=>x.p)).size)+card('Fecha inicial','29/08/2026');circles(grouped(a,'kits'),'Kits entregados por provincia','kits');
+  el.innerHTML=card('Kits entregados reportados',sum(a,'kits'))+card('Familias reportadas',sum(a,'familias'))+card('Provincias con registros',new Set(a.map(x=>x.p)).size)+card('Fecha inicial','29/08/2026');circles(grouped(a,'kits'),'Kits entregados por provincia','kits');$('module-description').textContent=scopeNote(a);
  }else if(mode==='brigadas'){
   const a=brigades.filter(x=>selected(x)&&(!x.fecha||(x.fecha>='2026-08-29'&&x.fecha<='2026-11-05'))),total=a.length;
   $('module-tag').textContent='Brigadas clasificadas como emergencia · 29/08/2026–05/11/2026';
   el.innerHTML=card('Brigadas de emergencia',total)+card('Población alcanzada',sum(a,'alcanzada'))+card('Población atendida',sum(a,'atendida'))+card('Provincias con brigadas',new Set(a.map(x=>x.p)).size);
   circles(grouped(a.map(x=>({...x,n:1})),'n'),'Brigadas de emergencia por provincia','brigadas');
-  $('module-description').textContent='La clasificación «Emergencia» no identifica por sí sola la causa del evento. Registros ubicados por territorio, no por coordenada exacta.';
+  $('module-description').textContent='La clasificación «Emergencia» no identifica por sí sola la causa del evento. Registros ubicados por territorio, no por coordenada exacta. '+scopeNote(a)+'';
  }else if(mode==='bonos'){
   const a=(operations.bonos||[]).filter(x=>selected(x)&&(!x.fecha||(x.fecha>='2026-08-29'&&x.fecha<='2026-11-08')));$('module-tag').textContent='Registro operativo de bonos · preliminar';
   el.innerHTML=card('Registros habilitados',sum(a,'habilitados'))+card('Registros cobrados',sum(a,'cobrados'))+card('Monto habilitado · USD',money(sum(a,'monto_habilitado')))+card('Monto cobrado · USD',money(sum(a,'monto_cobrado')));
   const names={habilitados:'Familias habilitadas',cobrados:'Familias cobradas',monto_habilitado:'Monto habilitado',monto_cobrado:'Monto cobrado'};
   const wrap=$('enos-subcontrols');wrap.hidden=false;wrap.innerHTML='<label for="bonus-metric">Indicador del mapa</label><select id="bonus-metric"><option value="cobrados">Familias cobradas</option><option value="habilitados">Familias habilitadas</option><option value="monto_cobrado">Monto cobrado (USD)</option><option value="monto_habilitado">Monto habilitado (USD)</option></select>';
   $('bonus-metric').value=bonusMetric;$('bonus-metric').onchange=e=>{bonusMetric=e.target.value;render()};
-  circles(grouped(a,bonusMetric),names[bonusMetric]+' por provincia',bonusMetric.startsWith('monto_')?'USD':'familias');
+  circles(grouped(a,bonusMetric),names[bonusMetric]+' por provincia',bonusMetric.startsWith('monto_')?'USD':'familias');$('module-description').textContent=scopeNote(a);
  }else if(mode==='proyeccion'){
   $('module-tag').textContent='Modelo metodológico · noviembre 2026 a marzo 2027';
   const wrap=$('enos-subcontrols');wrap.hidden=false;wrap.innerHTML='<label for="stock-month">Mes de planificación</label><select id="stock-month"><option value="0">Noviembre 2026</option><option value="1">Diciembre 2026</option><option value="2">Enero 2027</option><option value="3">Febrero 2027</option><option value="4">Marzo 2027</option></select>';
   const mi=Number(window.enosStockMonth||0);$('stock-month').value=String(mi);$('stock-month').onchange=e=>{window.enosStockMonth=Number(e.target.value);render()};
-  const a=(stock?.rows||[]).filter(selected),national=(stock?.rows||[]).reduce((n,x)=>n+Number(x.v[mi]||0),0),territorial=a.reduce((n,x)=>n+Number(x.v[mi]||0),0);
-  el.innerHTML=card('Stock mínimo referencial · selección',territorial)+card('Referencia nacional del mes',national)+card('Mes',stock?.months?.[mi]||'Sin datos')+card('Provincias incluidas',a.length);
+  const a=(stock?.rows||[]).filter(selected),national=(stock?.rows||[]).reduce((n,x)=>n+Number(x.v[mi]||0),0),territorial=a.reduce((n,x)=>n+Number(x.v[mi]||0),0),allMonths=a.reduce((v,x)=>v+(x.v||[]).reduce((n,k)=>n+Number(k||0),0),0);
+  el.innerHTML=card('Stock mínimo referencial · selección',territorial)+card('Referencia nacional del mes',national)+card('Mes',stock?.months?.[mi]||'Sin datos')+card('Provincias incluidas',a.length)+card('Suma de referencias mensuales · 5 meses',allMonths,'Suma aritmética para consulta; no equivale a demanda acumulada ni a compras requeridas');
   circles(Object.fromEntries(a.map(x=>[x.p,x.v[mi]])),'Stock mínimo referencial por provincia','kits');
-  $('module-description').textContent='Niveles de reserva mensual no acumulables. No equivalen a kits entregados ni a cantidades definitivas de compra.';
+  $('module-description').textContent='Niveles de reserva mensual no acumulables. La suma de los cinco meses es únicamente ilustrativa: no representa una necesidad de compra acumulada. '+scopeNote(a);
  }else if(mode==='eventos'){
   eventControls();$('module-tag').textContent='SITREP oficiales · acumulados sujetos a revisión';
   if(historicalMode==='sitrep'){
 
    const a=series.filter(selected),k=month==='acumulado'?'nov_acum':month;
-   const total=sum(a,k);el.innerHTML=card('Familias afectadas · '+(month==='acumulado'?'acumulado':month),total)+card('Provincias con registro',a.filter(x=>Number(x[k])>0).length)+card('Acumulado nacional 07/11',sum(series,'nov_acum'))+card('Cortes nacionales utilizados',3);
-   circles(Object.fromEntries(a.map(x=>[x.p,Number(x[k])||0])),'Familias afectadas · '+month);
-   $('event-method').textContent='Serie reconstruida por variaciones netas de acumulados SITREP 14, 65 y 77. No corresponde necesariamente al mes de ocurrencia; las correcciones pueden generar valores negativos.';
+   const total=sum(a,k);el.innerHTML=card('Variación neta de familias · '+(month==='acumulado'?'acumulado':month),total)+card('Provincias con registro',a.filter(x=>Number(x[k])>0).length)+card('Acumulado nacional 07/11',sum(series,'nov_acum'))+card('Cortes nacionales utilizados',3);
+   circles(Object.fromEntries(a.map(x=>[x.p,Number(x[k])||0])),'Variación neta de familias reportadas · '+month);
+   $('event-method').textContent='Serie reconstruida mediante diferencias entre cortes acumulados SITREP 14, 65 y 77. No representa necesariamente nuevas familias afectadas en cada mes. Las revisiones de registros pueden producir variaciones negativas.';
   }else if(historicalMode==='esmeraldas'&&esmeraldas){
    const a=esmeraldas.cantons.filter(x=>!$('canton').value||norm(x.c)===norm($('canton').value)),ok=!$('province').value||norm($('province').value)==='ESMERALDAS';
    const n=k=>ok?sum(a,k):0;el.innerHTML=card('Eventos',n('eventos'))+card('Personas impactadas',n('impactadas'))+card('Personas afectadas',n('afectadas'))+card('Personas damnificadas',n('damnificadas'));
