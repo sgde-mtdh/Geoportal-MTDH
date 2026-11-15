@@ -193,7 +193,17 @@ Promise.all([getJSON('capas/territorios.json'),getJSON('capas/superficies.json')
   const layers=Object.values(map._layers).filter(l=>l instanceof L.TileLayer);
   const pending=layers.some(layer=>layer._loading);
   if(pending&&tries<18){setTimeout(printWhenReady,650);return;}
-  setTimeout(()=>{prepareMapForPrint();window.print()},900);
+  setTimeout(async()=>{ 
+   const logo=document.getElementById('sheet-government-logo');
+   if(logo && !logo.complete){
+     await Promise.race([new Promise(resolve=>{logo.addEventListener('load',resolve,{once:true});logo.addEventListener('error',resolve,{once:true});}),new Promise(resolve=>setTimeout(resolve,3500))]);
+   }
+   if(logo && (!logo.naturalWidth || !logo.complete)){
+     logo.style.display='none';
+     logo.parentElement.classList.add('logo-load-error');
+   }
+   prepareMapForPrint();window.print();
+  },900);
  };
  setTimeout(printWhenReady,900);
 }}).catch(e=>{$('status').textContent='Error al iniciar: '+e.message;console.error(e)});
