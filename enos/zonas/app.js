@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const fmt=n=>new Intl.NumberFormat('es-EC',{maximumFractionDigits:2}).format(n);
 const colors={inundaciones:{ALTA:'#d32f2f',MEDIA:'#ffc02e',BAJA:'#2e7d32'},movimientos:{'Muy alta':'#8b1e3f',Alta:'#d32f2f',Media:'#ffc02e'}};
 const state={threat:'inundaciones',province:'',canton:'',parish:'',category:'',admin:null,stats:[],bounds:{},geos:{},mapLayer:null,outline:null,token:0};
-const map=L.map('map',{preferCanvas:true,zoomControl:false}).setView([-1.9,-78.5],7);L.control.zoom({position:'bottomleft'}).addTo(map);
+const map=L.map('map',{preferCanvas:true,zoomControl:false}).setView([-1.9,-78.5],7);L.control.zoom({position:'bottomleft'}).addTo(map);L.control.scale({position:'bottomleft',metric:true,imperial:false,maxWidth:120}).addTo(map);
 const bases={light:L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}),terrain:L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{attribution:'© OpenTopoMap',maxZoom:17}),satellite:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:18})};let base=bases.light.addTo(map);
 async function getJSON(path){const r=await fetch(path);if(!r.ok)throw Error(`${path}: HTTP ${r.status}`);return r.json()}
 function options(id,items,placeholder){const select=$(id);select.replaceChildren(new Option(placeholder,''));items.sort((a,b)=>a.name.localeCompare(b.name,'es')).forEach(x=>select.add(new Option(x.name,x.id)));select.disabled=id!=='province'&&items.length===0;}
