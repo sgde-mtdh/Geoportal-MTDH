@@ -127,6 +127,7 @@ function renderLocationInsets(){
  locatorMaps=[m1,m2];setTimeout(()=>locatorMaps.forEach(m=>m.invalidateSize()),200);
 }
 /* Retícula geográfica real (latitud/longitud WGS84), calculada para el encuadre impreso. */
+function gridSafeForPrint(){const grid=document.querySelector('#sheet-map-slot .map-grid');if(grid)grid.replaceChildren();}
 function renderPrintGraticule(){
  const slot=$('sheet-map-slot'),grid=slot?.querySelector('.map-grid');if(!grid)return;
  const w=slot.clientWidth,h=slot.clientHeight;if(w<100||h<100)return;
@@ -154,11 +155,13 @@ function prepareCartographicSheet(){
  const mapbox=document.querySelector('.layout .mapbox'),slot=$('sheet-map-slot');
  printRestore={parent:mapbox.parentNode,next:mapbox.nextSibling};
  $('sheet-title').textContent='Mapa de susceptibilidad a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');
- $('sheet-territory').textContent=$('territory-title').textContent;
+ const prov=state.admin?.provincias?.find(x=>x.id===state.province)?.name||'Todas las provincias';
+ const cant=state.admin?.cantones?.find(x=>x.id===state.canton)?.name||'Todos los cantones';
+ $('sheet-territory').textContent='Provincia: '+prov+' · Cantón: '+cant+(state.parish?' · Parroquia: '+(state.admin?.parroquias?.find(x=>x.id===state.parish)?.name||state.parish):'');
  $('sheet-legend').innerHTML=legendMarkup();
  $('sheet-date').textContent='Fecha y hora (Ecuador): '+new Intl.DateTimeFormat('es-EC',{timeZone:'America/Guayaquil',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
- $('sheet-source').textContent='Fuente cartográfica: SNGR · Límites administrativos: referencia 2024 · Elaboración: MTDH / SGDE';
- slot.appendChild(mapbox);map.invalidateSize();renderLocationInsets();setTimeout(()=>{map.invalidateSize();if(state.outline?.getLayers().length){const b=state.province?state.outline.getBounds():L.latLngBounds([[-5.03,-81.0],[1.43,-75.16]]);map.fitBounds(b,{padding:[22,22],maxZoom:state.parish?13:state.canton?11:9});}setTimeout(renderPrintGraticule,200);},300);
+ $('sheet-source').textContent='Cartografía de susceptibilidad: SNGR. Límites administrativos: referencia 2024.';
+ slot.appendChild(mapbox);map.invalidateSize();renderLocationInsets();setTimeout(()=>{map.invalidateSize();if(state.outline?.getLayers().length){const b=state.province?state.outline.getBounds():L.latLngBounds([[-5.03,-81.0],[1.43,-75.16]]);map.fitBounds(b,{padding:[22,22],maxZoom:state.parish?13:state.canton?11:9});}gridSafeForPrint();},300);
 }
 $('print-map').addEventListener('click',()=>{
  const params=new URLSearchParams({print:'1',threat:state.threat,province:state.province,canton:state.canton,parish:state.parish,category:state.category});
@@ -170,4 +173,4 @@ $('basemap').addEventListener('change',e=>{map.removeLayer(base);base=bases[e.ta
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{state.threat=b.dataset.threat;state.category='';document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));$('map-title').textContent='Susceptibilidad a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');refresh(false)}));
 const printParams=new URLSearchParams(location.search);const printMode=printParams.get('print')==='1';
 if(printMode){document.body.classList.add('cartographic-print-mode');state.threat=printParams.get('threat')==='movimientos'?'movimientos':'inundaciones';state.province=printParams.get('province')||'';state.canton=printParams.get('canton')||'';state.parish=printParams.get('parish')||'';state.category=printParams.get('category')||'';document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.threat===state.threat));$('map-title').textContent='Susceptibilidad a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');}
-Promise.all([getJSON('capas/territorios.json'),getJSON('capas/superficies.json'),getJSON('capas/provincias.geojson'),getJSON('capas/cantones.geojson'),getJSON('capas/parroquias.geojson')]).then(([admin,stats,provinces,cantones,parroquias])=>{Object.assign(state,{admin,stats,bounds:{provincias:provinces,cantones,parroquias}});refresh(true);if(printMode){prepareCartographicSheet();map.invalidateSize();let wait=0;const printWhenReady=()=>{map.invalidateSize();if(++wait>=5){setTimeout(()=>{renderPrintGraticule();window.print()},1100)}else setTimeout(printWhenReady,500)};setTimeout(printWhenReady,700)}}).catch(e=>{$('status').textContent='Error al iniciar: '+e.message;console.error(e)});
+Promise.all([getJSON('capas/territorios.json'),getJSON('capas/superficies.json'),getJSON('capas/provincias.geojson'),getJSON('capas/cantones.geojson'),getJSON('capas/parroquias.geojson')]).then(([admin,stats,provinces,cantones,parroquias])=>{Object.assign(state,{admin,stats,bounds:{provincias:provinces,cantones,parroquias}});refresh(true);if(printMode){prepareCartographicSheet();map.invalidateSize();let wait=0;const printWhenReady=()=>{map.invalidateSize();if(++wait>=5){setTimeout(()=>{gridSafeForPrint();window.print()},1100)}else setTimeout(printWhenReady,500)};setTimeout(printWhenReady,700)}}).catch(e=>{$('status').textContent='Error al iniciar: '+e.message;console.error(e)});
