@@ -126,6 +126,29 @@ function renderLocationInsets(){
  else m2.fitBounds(provinces.getBounds(),{padding:[8,8]});
  locatorMaps=[m1,m2];setTimeout(()=>locatorMaps.forEach(m=>m.invalidateSize()),200);
 }
+/* Retícula geográfica real (latitud/longitud WGS84), calculada para el encuadre impreso. */
+function renderPrintGraticule(){
+ const slot=$('sheet-map-slot'),grid=slot?.querySelector('.map-grid');if(!grid)return;
+ const w=slot.clientWidth,h=slot.clientHeight;if(w<100||h<100)return;
+ const b=map.getBounds(),west=b.getWest(),east=b.getEast(),south=b.getSouth(),north=b.getNorth();
+ const span=Math.max(east-west,north-south);
+ const step=span>12?2:span>5?1:span>2?.5:span>1?.25:span>.4?.1:.05;
+ const ns='http://www.w3.org/2000/svg';
+ const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 '+w+' '+h);svg.setAttribute('width','100%');svg.setAttribute('height','100%');svg.setAttribute('aria-label','Retícula geográfica de latitud y longitud en grados, datum WGS84');
+ const add=(tag,attrs,value)=>{const el=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,String(v)));if(value!==undefined)el.textContent=value;svg.appendChild(el);return el};
+ const fmt=(v,axis)=>Math.abs(v).toFixed(step<1?2:0)+'°'+(axis==='lon'?(v<0?'O':'E'):(v<0?'S':'N'));
+ for(let lon=Math.ceil(west/step)*step;lon<=east;lon+=step){
+  const x=map.latLngToContainerPoint([0,lon]).x;if(x<12||x>w-12)continue;
+  add('line',{x1:x,y1:0,x2:x,y2:h,stroke:'#193d55','stroke-width':.8,'stroke-opacity':.46});
+  add('text',{x,y:13,'text-anchor':'middle',fill:'#102c42','font-size':11,'font-family':'Barlow,Arial,sans-serif','font-weight':700,'paint-order':'stroke',stroke:'#fff','stroke-width':3},fmt(lon,'lon'));
+ }
+ for(let lat=Math.ceil(south/step)*step;lat<=north;lat+=step){
+  const y=map.latLngToContainerPoint([lat,0]).y;if(y<18||y>h-12)continue;
+  add('line',{x1:0,y1:y,x2:w,y2:y,stroke:'#193d55','stroke-width':.8,'stroke-opacity':.46});
+  add('text',{x:5,y:y-4,fill:'#102c42','font-size':11,'font-family':'Barlow,Arial,sans-serif','font-weight':700,'paint-order':'stroke',stroke:'#fff','stroke-width':3},fmt(lat,'lat'));
+ }
+ grid.replaceChildren(svg);
+}
 function prepareCartographicSheet(){
  if(printRestore)return;
  const mapbox=document.querySelector('.layout .mapbox'),slot=$('sheet-map-slot');
@@ -135,7 +158,7 @@ function prepareCartographicSheet(){
  $('sheet-legend').innerHTML=legendMarkup();
  $('sheet-date').textContent='Fecha y hora (Ecuador): '+new Intl.DateTimeFormat('es-EC',{timeZone:'America/Guayaquil',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
  $('sheet-source').textContent='Fuente cartográfica: SNGR · Límites administrativos: referencia 2024 · Elaboración: MTDH / SGDE';
- slot.appendChild(mapbox);map.invalidateSize();renderLocationInsets();setTimeout(()=>{map.invalidateSize();if(state.outline?.getLayers().length){const b=state.province?state.outline.getBounds():L.latLngBounds([[-5.03,-81.0],[1.43,-75.16]]);map.fitBounds(b,{padding:[22,22],maxZoom:state.parish?13:state.canton?11:9});}},300);
+ slot.appendChild(mapbox);map.invalidateSize();renderLocationInsets();setTimeout(()=>{map.invalidateSize();if(state.outline?.getLayers().length){const b=state.province?state.outline.getBounds():L.latLngBounds([[-5.03,-81.0],[1.43,-75.16]]);map.fitBounds(b,{padding:[22,22],maxZoom:state.parish?13:state.canton?11:9});}setTimeout(renderPrintGraticule,200);},300);
 }
 $('print-map').addEventListener('click',()=>{
  const params=new URLSearchParams({print:'1',threat:state.threat,province:state.province,canton:state.canton,parish:state.parish,category:state.category});
@@ -147,4 +170,4 @@ $('basemap').addEventListener('change',e=>{map.removeLayer(base);base=bases[e.ta
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{state.threat=b.dataset.threat;state.category='';document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));$('map-title').textContent='Susceptibilidad a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');refresh(false)}));
 const printParams=new URLSearchParams(location.search);const printMode=printParams.get('print')==='1';
 if(printMode){document.body.classList.add('cartographic-print-mode');state.threat=printParams.get('threat')==='movimientos'?'movimientos':'inundaciones';state.province=printParams.get('province')||'';state.canton=printParams.get('canton')||'';state.parish=printParams.get('parish')||'';state.category=printParams.get('category')||'';document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.threat===state.threat));$('map-title').textContent='Susceptibilidad a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');}
-Promise.all([getJSON('capas/territorios.json'),getJSON('capas/superficies.json'),getJSON('capas/provincias.geojson'),getJSON('capas/cantones.geojson'),getJSON('capas/parroquias.geojson')]).then(([admin,stats,provinces,cantones,parroquias])=>{Object.assign(state,{admin,stats,bounds:{provincias:provinces,cantones,parroquias}});refresh(true);if(printMode){prepareCartographicSheet();map.invalidateSize();let wait=0;const printWhenReady=()=>{map.invalidateSize();if(++wait>=5){setTimeout(()=>window.print(),1100)}else setTimeout(printWhenReady,500)};setTimeout(printWhenReady,700)}}).catch(e=>{$('status').textContent='Error al iniciar: '+e.message;console.error(e)});
+Promise.all([getJSON('capas/territorios.json'),getJSON('capas/superficies.json'),getJSON('capas/provincias.geojson'),getJSON('capas/cantones.geojson'),getJSON('capas/parroquias.geojson')]).then(([admin,stats,provinces,cantones,parroquias])=>{Object.assign(state,{admin,stats,bounds:{provincias:provinces,cantones,parroquias}});refresh(true);if(printMode){prepareCartographicSheet();map.invalidateSize();let wait=0;const printWhenReady=()=>{map.invalidateSize();if(++wait>=5){setTimeout(()=>{renderPrintGraticule();window.print()},1100)}else setTimeout(printWhenReady,500)};setTimeout(printWhenReady,700)}}).catch(e=>{$('status').textContent='Error al iniciar: '+e.message;console.error(e)});
