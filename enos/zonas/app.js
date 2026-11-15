@@ -8,7 +8,19 @@ const bases={light:L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
 async function getJSON(path){const r=await fetch(path);if(!r.ok)throw Error(`${path}: HTTP ${r.status}`);return r.json()}
 function options(id,items,placeholder){const select=$(id);select.replaceChildren(new Option(placeholder,''));items.sort((a,b)=>a.name.localeCompare(b.name,'es')).forEach(x=>select.add(new Option(x.name,x.id)));select.disabled=id!=='province'&&items.length===0;}
 function updateSelectors(){const a=state.admin;options('province',a.provincias,'Todas las provincias');options('canton',a.cantones.filter(x=>x.province===state.province),'Todos los cantones');options('parish',a.parroquias.filter(x=>x.canton===state.canton),'Todas las parroquias');$('province').value=state.province;$('canton').value=state.canton;$('parish').value=state.parish;}
-function categorySelect(){const cats=colors[state.threat];$('category').replaceChildren(new Option('Todos los niveles',''));Object.keys(cats).forEach(c=>$('category').add(new Option(c,c)));$('category').value=state.category;$('legend-items').innerHTML=Object.entries(cats).map(([c,color])=>`<div class="legend-item"><span class="swatch" style="background:${color}"></span><span>${c==='ALTA'?'Alta':c==='MEDIA'?'Media':c==='BAJA'?'Baja':c}</span></div>`).join('');}
+const boundaryStyles={
+ provincias:{label:'Límite provincial',color:'#244f73',weight:1.7,dashArray:null},
+ cantones:{label:'Límite cantonal',color:'#4b7091',weight:1.25,dashArray:'7 4'},
+ parroquias:{label:'Límite parroquial',color:'#7893aa',weight:1,dashArray:'2 4'}
+};
+function boundaryLevels(){return state.canton?['provincias','cantones','parroquias']:state.province?['provincias','cantones']:['provincias']}
+function legendMarkup(){
+ const cats=colors[state.threat],active=state.category?[state.category]:Object.keys(cats);
+ const catRows=active.map(c=>'<div class="legend-item"><span class="swatch" style="background:'+cats[c]+'"></span><span>'+({ALTA:'Alta',MEDIA:'Media',BAJA:'Baja'}[c]||c)+'</span></div>').join('');
+ const boundaryRows=boundaryLevels().map(k=>{const x=boundaryStyles[k];return '<div class="legend-item boundary-item"><svg viewBox="0 0 44 16" width="44" height="16" aria-hidden="true"><path d="M1 8 H43" fill="none" stroke="'+x.color+'" stroke-width="'+x.weight*1.65+'" '+(x.dashArray?'stroke-dasharray="'+x.dashArray+'"':'')+'/></svg><span>'+x.label+'</span></div>'}).join('');
+ return '<div class="legend-section">NIVELES DE SUSCEPTIBILIDAD</div>'+catRows+'<div class="legend-section">DIVISIÓN POLÍTICO-ADMINISTRATIVA</div>'+boundaryRows;
+}
+function categorySelect(){const cats=colors[state.threat];$('category').replaceChildren(new Option('Todos los niveles',''));Object.keys(cats).forEach(c=>$('category').add(new Option(c,c)));$('category').value=state.category;$('legend-items').innerHTML=legendMarkup();}
 function selectedRows(){return state.stats.filter(r=>r.amenaza===state.threat&&(!state.province||r.parroquia.startsWith(state.province))&&(!state.canton||r.parroquia.startsWith(state.canton))&&(!state.parish||r.parroquia===state.parish)&&(!state.category||r.categoria===state.category));}
 const originalMM={'Muy alta':20673.373536,Alta:41544.803412,Media:57050.430297};
 const originalMMProvincia={
@@ -22,7 +34,32 @@ const originalMMProvincia={
 function updateKpis(){$('k-total-label').textContent='Superficie susceptible a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');const rows=selectedRows().filter(r=>!['SIN','NO APLICABLE'].includes(r.categoria)),sum=fn=>rows.filter(fn).reduce((s,r)=>s+r.area_km2,0);let total=sum(r=>state.category||!['SIN','NO APLICABLE'].includes(r.categoria)),hi=sum(r=>['ALTA','Alta','Muy alta'].includes(r.categoria)),med=sum(r=>['MEDIA','Media'].includes(r.categoria));const nationalOriginal=state.threat==='movimientos'&&!state.province&&!state.canton&&!state.parish;if(nationalOriginal){total=state.category?(originalMM[state.category]||0):Object.values(originalMM).reduce((a,b)=>a+b,0);hi=!state.category||['Alta','Muy alta'].includes(state.category)?(state.category?originalMM[state.category]:originalMM.Alta+originalMM['Muy alta']):0;med=!state.category||state.category==='Media'?originalMM.Media:0;}const provincialOriginal=state.threat==='movimientos'&&!!state.province&&!state.canton&&!state.parish&&!!originalMMProvincia[state.province];if(provincialOriginal){const [muyAlta,alta,media]=originalMMProvincia[state.province];const v={'Muy alta':muyAlta,Alta:alta,Media:media};total=state.category?v[state.category]||0:muyAlta+alta+media;hi=state.category?(state.category==='Media'?0:v[state.category]||0):muyAlta+alta;med=state.category?(state.category==='Media'?media:0):media;}$('k-total').textContent=fmt(total);$('k-total-label').textContent='Superficie territorial con susceptibilidad a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');$('k-high-label').textContent='Superficie territorial con susceptibilidad '+(state.threat==='inundaciones'?'alta a inundaciones':'alta y muy alta a movimientos en masa');$('k-medium-label').textContent='Superficie territorial con susceptibilidad media a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');$('k-high').textContent=fmt(hi);$('k-medium').textContent=fmt(med);$('k-parishes').textContent=new Set(rows.filter(r=>r.area_km2>0&&state.admin.parroquias.some(p=>p.id===r.parroquia)).map(r=>r.parroquia)).size.toLocaleString('es-EC');const list=state.admin;const title=state.parish?list.parroquias.find(x=>x.id===state.parish)?.name:state.canton?list.cantones.find(x=>x.id===state.canton)?.name:state.province?list.provincias.find(x=>x.id===state.province)?.name:'Ecuador';$('territory-title').textContent=title+(state.category?' · '+state.category:'');$('detail').textContent=provincialOriginal&&state.province==='20'?`La cartografía original de movimientos en masa recibida no contiene polígonos para Galápagos. Esto no equivale a ausencia de amenaza.`:provincialOriginal?`Superficie provincial calculada mediante intersección de los polígonos originales SNGR con el límite provincial del visualizador, en EPSG:32717. Puede diferir del total nacional por geometrías no asignadas a límites provinciales o discrepancias de límites. Las superficies cantonales y parroquiales siguen siendo estimaciones.`:nationalOriginal?`Superficies nacionales de referencia calculadas a partir del campo Shape_Area de la capa original SNGR (364.732 polígonos; EPSG:32717). La representación visual continúa siendo una versión generalizada y los resultados provinciales se calcularon por intersección con límites provinciales; los cantonales y parroquiales siguen siendo estimaciones.`:rows.length?`Selección: ${fmt(total)} km² sumados en ${rows.length} combinaciones de parroquia y categoría. La estimación utiliza celdas de 150 m y categorías mutuamente excluyentes por prioridad de amenaza. Las categorías técnicas SIN y NO APLICABLE no se contabilizan como superficie susceptible ni como parroquias.`:'No existen registros cartográficos para esta combinación. No significa que el territorio carezca de amenaza.';}
 function outlineName(){return state.parish?'parroquias':state.canton?'cantones':'provincias'}
 function outlineCode(){return state.parish||state.canton||state.province}
-function drawOutline(zoom){if(state.outline)map.removeLayer(state.outline);const key=outlineName(),id=outlineCode(),features=state.bounds[key].features;const valid=features.filter(f=>['Polygon','MultiPolygon'].includes(f.geometry?.type));const show=id?valid.filter(f=>f.properties.id===id):valid;state.outline=L.geoJSON({type:'FeatureCollection',features:show},{style:{color:'#274c70',weight:id?2.2:1.05,fill:false,opacity:.85},onEachFeature:(f,l)=>{l.bindTooltip(f.properties.name);if(!id&&key==='provincias')l.on('click',()=>{state.province=f.properties.id;state.canton='';state.parish='';refresh(true)})}}).addTo(map);if(zoom&&state.outline.getLayers().length){const target=!id?L.latLngBounds([[-5.03,-81.0],[1.43,-75.16]]):state.outline.getBounds();map.fitBounds(target,{padding:[24,24],maxZoom:state.parish?13:state.canton?11:9});}}
+let secondaryBoundaries=null;
+function drawOutline(zoom){
+ if(state.outline)map.removeLayer(state.outline);
+ if(secondaryBoundaries)map.removeLayer(secondaryBoundaries);
+ const key=outlineName(),id=outlineCode(),features=state.bounds[key].features;
+ const valid=features.filter(f=>['Polygon','MultiPolygon'].includes(f.geometry?.type));
+ const show=id?valid.filter(f=>f.properties.id===id):valid;
+ const style=boundaryStyles[key];
+ state.outline=L.geoJSON({type:'FeatureCollection',features:show},{style:{color:style.color,weight:id?2.3:style.weight,dashArray:style.dashArray,fill:false,opacity:.9},onEachFeature:(f,l)=>{l.bindTooltip(f.properties.name);if(!id&&key==='provincias')l.on('click',()=>{state.province=f.properties.id;state.canton='';state.parish='';refresh(true)})}}).addTo(map);
+ const secondary=[];
+ if(state.province){
+   const ps=state.bounds.provincias.features.filter(f=>f.properties.id===state.province&&['Polygon','MultiPolygon'].includes(f.geometry?.type));
+   secondary.push(L.geoJSON({type:'FeatureCollection',features:ps},{style:{color:boundaryStyles.provincias.color,weight:2.1,fill:false}}));
+   if(state.canton){
+     const cs=state.bounds.cantones.features.filter(f=>f.properties.id===state.canton&&['Polygon','MultiPolygon'].includes(f.geometry?.type));
+     secondary.push(L.geoJSON({type:'FeatureCollection',features:cs},{style:{color:boundaryStyles.cantones.color,weight:1.7,dashArray:boundaryStyles.cantones.dashArray,fill:false}}));
+     const par=state.bounds.parroquias.features.filter(f=>f.properties.id.startsWith(state.canton)&&['Polygon','MultiPolygon'].includes(f.geometry?.type));
+     secondary.push(L.geoJSON({type:'FeatureCollection',features:par},{style:{color:boundaryStyles.parroquias.color,weight:1,dashArray:boundaryStyles.parroquias.dashArray,fill:false}}));
+   }else{
+     const cs=state.bounds.cantones.features.filter(f=>f.properties.id.startsWith(state.province)&&['Polygon','MultiPolygon'].includes(f.geometry?.type));
+     secondary.push(L.geoJSON({type:'FeatureCollection',features:cs},{style:{color:boundaryStyles.cantones.color,weight:1.25,dashArray:boundaryStyles.cantones.dashArray,fill:false}}));
+   }
+ }
+ secondaryBoundaries=L.layerGroup(secondary).addTo(map);
+ if(zoom&&state.outline.getLayers().length){const target=!id?L.latLngBounds([[-5.03,-81.0],[1.43,-75.16]]):state.outline.getBounds();map.fitBounds(target,{padding:[24,24],maxZoom:state.parish?13:state.canton?11:9});}
+}
 function match(f){const p=f.properties;return (!state.province||p.province===state.province)&&(!state.canton||p.canton===state.canton)&&(!state.parish||p.parish===state.parish)&&(!state.category||p.categoria===state.category)}
 async function drawThreat(){
  const token=++state.token;if(state.mapLayer){map.removeLayer(state.mapLayer);state.mapLayer=null}
@@ -40,7 +77,7 @@ async function drawThreat(){
    state.mapLayer=L.geoJSON({type:'FeatureCollection',features},{style:f=>({stroke:false,fillColor:colors[th][f.properties.categoria]||'#8795a5',fillOpacity:.68}),interactive:false}).addTo(map);
    $('status').textContent=features.length?features.length.toLocaleString('es-EC')+' polígonos visibles · detalle territorial':'Sin cobertura cartográfica para esta selección';
   }
-  if(state.outline)state.outline.bringToFront();
+  if(secondaryBoundaries)secondaryBoundaries.bringToFront();if(state.outline)state.outline.bringToFront();
  }catch(e){if(token===state.token)$('status').textContent='Error al cargar cartografía: '+e.message;console.error(e)}
 }
 
@@ -95,7 +132,7 @@ function prepareCartographicSheet(){
  printRestore={parent:mapbox.parentNode,next:mapbox.nextSibling};
  $('sheet-title').textContent='Mapa de susceptibilidad a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');
  $('sheet-territory').textContent=$('territory-title').textContent;
- $('sheet-legend').innerHTML=$('legend-items').innerHTML;
+ $('sheet-legend').innerHTML=legendMarkup();
  $('sheet-date').textContent='Fecha y hora (Ecuador): '+new Intl.DateTimeFormat('es-EC',{timeZone:'America/Guayaquil',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
  $('sheet-source').textContent='Fuente cartográfica: SNGR · Límites administrativos: referencia 2024 · Elaboración: MTDH / SGDE';
  slot.appendChild(mapbox);map.invalidateSize();renderLocationInsets();setTimeout(()=>{map.invalidateSize();if(state.outline?.getLayers().length){const b=state.province?state.outline.getBounds():L.latLngBounds([[-5.03,-81.0],[1.43,-75.16]]);map.fitBounds(b,{padding:[22,22],maxZoom:state.parish?13:state.canton?11:9});}},300);
