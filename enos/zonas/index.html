@@ -156,6 +156,29 @@ main.wrap>*:not(#cartographic-sheet){display:none!important}
 .layout>.map-panel{position:sticky!important;top:12px!important}
 @media(max-width:1000px){.diagnostic-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:620px){.diagnostic-grid{grid-template-columns:1fr!important}}
+</style><style id="print-preview-visible">
+@media screen{
+body.cartographic-print-mode{background:#e4e9ef!important;color:#19344f!important}
+body.cartographic-print-mode nav,body.cartographic-print-mode main.wrap>*:not(#cartographic-sheet){display:none!important}
+body.cartographic-print-mode main.wrap{width:100%!important;max-width:none!important;padding:16px!important;margin:0!important}
+body.cartographic-print-mode #cartographic-sheet{display:flex!important;flex-direction:column;width:min(100%,1587px);height:1123px;padding:45px 52px 38px;background:#fff;color:#17314c;box-shadow:0 4px 24px #0002;margin:auto;box-sizing:border-box}
+body.cartographic-print-mode .sheet-head{display:flex;align-items:center;gap:38px;border-bottom:2px solid #0d3b65;padding-bottom:15px;min-height:102px}
+body.cartographic-print-mode .sheet-head img{max-width:265px;max-height:75px;object-fit:contain}
+body.cartographic-print-mode .sheet-head strong{display:block;font-size:18px;color:#15365a}
+body.cartographic-print-mode .sheet-head span{display:block;font-size:12px;color:#4e657a}
+body.cartographic-print-mode .sheet-title{display:flex;align-items:baseline;justify-content:space-between;padding:18px 0}
+body.cartographic-print-mode .sheet-title h2{margin:0;font:800 36px 'Barlow Condensed',Barlow;color:#0e3358}
+body.cartographic-print-mode .sheet-grid{display:grid;grid-template-columns:minmax(0,1fr) 235px;gap:18px;flex:1;min-height:0}
+body.cartographic-print-mode #sheet-map-slot{position:relative;min-height:0;border:1px solid #b6c4d0;overflow:hidden}
+body.cartographic-print-mode #sheet-map-slot .mapbox,body.cartographic-print-mode #map{height:100%!important;min-height:0!important;max-height:none!important}
+body.cartographic-print-mode .sheet-side{border:1px solid #b9c8d6;padding:18px;color:#1b3a59!important;display:flex;flex-direction:column}
+body.cartographic-print-mode .sheet-side h3{color:#173c60;font-size:20px;margin:0 0 14px}
+body.cartographic-print-mode .sheet-side .legend-item{color:#1b3954!important;font-size:16px}
+body.cartographic-print-mode .sheet-side p{color:#43586d;font-size:13px;line-height:1.5}
+body.cartographic-print-mode .sheet-north{margin-top:auto;text-align:center;font-size:22px;color:#17314c}
+body.cartographic-print-mode .sheet-foot{display:flex;justify-content:space-between;gap:20px;border-top:1px solid #bcc9d4;padding-top:12px;margin-top:14px;font-size:11px;color:#3b536a}
+body.cartographic-print-mode .mapstatus{display:none!important}
+}
 </style></head><body><script>if(new URLSearchParams(location.search).get('integrado')==='1')document.body.classList.add('visualizador-integrado');</script><nav aria-label="Navegación del Geoportal" style="position:sticky;top:0;z-index:9999;display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:10px 24px;background:#102344;border-bottom:1px solid #668bb4;font:700 15px Barlow,Arial,sans-serif"><a href="../../index.html" target="_top" style="color:#fff;text-decoration:none;padding:10px 14px;border:1px solid #7199c4;border-radius:9px">← Menú principal</a><a href="../index.html" target="_top" style="color:#fff;text-decoration:none;padding:10px 14px;border:1px solid #7199c4;border-radius:9px">← Menú ENOS</a><a href="../../servicios/index.html" target="_top" style="color:#fff;text-decoration:none;padding:10px 14px;border:1px solid #7199c4;border-radius:9px">Servicios para la ciudadanía</a></nav>
 <main class="wrap" style="padding:10px 24px;max-width:none"><div class="threat-controls"><strong>Mapa de susceptibilidad · diagnóstico preventivo</strong><div><button class="tab active" data-threat="inundaciones">Inundaciones</button> <button class="tab" data-threat="movimientos">Movimientos en masa</button></div></div>
 <section class="panel compact-filter-panel"><div class="filters"><div><label for="province">Provincia</label><select id="province"><option value="">Todas las provincias</option></select></div><div><label for="canton">Cantón</label><select id="canton" disabled><option value="">Todos los cantones</option></select></div><div><label for="parish">Parroquia</label><select id="parish" disabled><option value="">Todas las parroquias</option></select></div><div><label for="category">Susceptibilidad</label><select id="category"><option value="">Todos los niveles</option></select></div><div class="filter-action"><button id="clear-filters" class="secondary-btn" type="button">✕ Limpiar filtros</button></div></div></section>
