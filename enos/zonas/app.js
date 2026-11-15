@@ -176,4 +176,24 @@ $('basemap').addEventListener('change',e=>{map.removeLayer(base);base=bases[e.ta
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{state.threat=b.dataset.threat;state.category='';document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));$('map-title').textContent='Susceptibilidad a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');refresh(false)}));
 const printParams=new URLSearchParams(location.search);const printMode=printParams.get('print')==='1';
 if(printMode){document.body.classList.add('cartographic-print-mode');state.threat=printParams.get('threat')==='movimientos'?'movimientos':'inundaciones';state.province=printParams.get('province')||'';state.canton=printParams.get('canton')||'';state.parish=printParams.get('parish')||'';state.category=printParams.get('category')||'';document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.threat===state.threat));$('map-title').textContent='Susceptibilidad a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');}
-Promise.all([getJSON('capas/territorios.json'),getJSON('capas/superficies.json'),getJSON('capas/provincias.geojson'),getJSON('capas/cantones.geojson'),getJSON('capas/parroquias.geojson')]).then(([admin,stats,provinces,cantones,parroquias])=>{Object.assign(state,{admin,stats,bounds:{provincias:provinces,cantones,parroquias}});refresh(true);if(printMode){prepareCartographicSheet();map.invalidateSize();let wait=0;const printWhenReady=()=>{map.invalidateSize();if(++wait>=5){setTimeout(()=>{gridSafeForPrint();window.print()},1100)}else setTimeout(printWhenReady,500)};setTimeout(printWhenReady,700)}}).catch(e=>{$('status').textContent='Error al iniciar: '+e.message;console.error(e)});
+Promise.all([getJSON('capas/territorios.json'),getJSON('capas/superficies.json'),getJSON('capas/provincias.geojson'),getJSON('capas/cantones.geojson'),getJSON('capas/parroquias.geojson')]).then(([admin,stats,provinces,cantones,parroquias])=>{Object.assign(state,{admin,stats,bounds:{provincias:provinces,cantones,parroquias}});refresh(true);if(printMode){
+ prepareCartographicSheet();
+ const printableBounds=()=>state.province&&state.outline?.getLayers().length?state.outline.getBounds():L.latLngBounds([[-5.03,-81],[1.43,-75.16]]);
+ const prepareMapForPrint=()=>{
+  map.invalidateSize({pan:false});
+  map.fitBounds(printableBounds(),{animate:false,padding:[18,18],maxZoom:state.parish?13:state.canton?11:9});
+  map.invalidateSize({pan:false});
+  gridSafeForPrint();
+ };
+ window.addEventListener('beforeprint',prepareMapForPrint);
+ let tries=0;
+ const printWhenReady=()=>{
+  prepareMapForPrint();
+  if(++tries<9){setTimeout(printWhenReady,650);return;}
+  const layers=Object.values(map._layers).filter(l=>l instanceof L.TileLayer);
+  const pending=layers.some(layer=>layer._loading);
+  if(pending&&tries<18){setTimeout(printWhenReady,650);return;}
+  setTimeout(()=>{prepareMapForPrint();window.print()},900);
+ };
+ setTimeout(printWhenReady,900);
+}}).catch(e=>{$('status').textContent='Error al iniciar: '+e.message;console.error(e)});
