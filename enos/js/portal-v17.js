@@ -46,7 +46,7 @@ function eventControls(){const wrap=$('enos-subcontrols');wrap.hidden=false;wrap
  $('event-view').value=historicalMode;$('event-month').value=month;
  $('event-view').onchange=e=>{historicalMode=e.target.value;render()};$('event-month').onchange=e=>{month=e.target.value;render()};}
 function render(){pin.clearLayers();hideFlood();$('module-heading').textContent=title[mode];$('module-description').textContent='';$('module-tag').textContent='';$('enos-subcontrols').hidden=true;$('enos-subcontrols').innerHTML='';$('unit-controls').hidden=!['unidades','poblacion'].includes(mode);
- const integrated=mode==='amenazas';$('amenazas-visualizador').style.display=integrated?'block':'none';$('module-dashboard').style.display=integrated?'none':'';document.querySelector('.workspace').style.display=integrated?'none':'';if(integrated){$('map-status').textContent='Visualizador territorial integrado';return;}
+ const integrated=mode==='amenazas';document.body.classList.toggle('enos-zonas-activas',integrated);$('amenazas-visualizador').style.display=integrated?'block':'none';$('module-dashboard').style.display=integrated?'none':'';document.querySelector('.workspace').style.display=integrated?'none':'';if(integrated){$('map-status').textContent='Visualizador territorial integrado';return;}
  const el=$('module-metrics');let values={};
  if(mode==='amenazas'){
   $('module-tag').textContent='Cartografía de susceptibilidad · fuente geográfica original';
