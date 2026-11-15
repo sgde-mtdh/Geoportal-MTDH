@@ -1,6 +1,6 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id),fmt=x=>Number(x||0).toLocaleString('es-EC',{maximumFractionDigits:0}),money=x=>Number(x||0).toLocaleString('es-EC',{minimumFractionDigits:2,maximumFractionDigits:2}),norm=x=>String(x||'').trim().toLocaleUpperCase('es-EC');
-const title={amenazas:'Zonas susceptibles',unidades:'Unidades de atención expuestas',poblacion:'Población potencialmente expuesta',proyeccion:'Proyección de kits mínimos',alojamientos:'Alojamientos temporales identificados',eventos:'Eventos y afectaciones',kits:'Kits entregados',brigadas:'Brigadas de emergencia',bonos:'Bonos de contingencia'};
+const title={amenazas:'Zonas susceptibles',unidades:'Unidades de atención expuestas',poblacion:'Población potencialmente expuesta',proyeccion:'Proyección de kits mínimos',alojamientos:'Alojamientos temporales identificados',eventos:'Eventos, afectaciones y respuesta interinstitucional',kits:'Kits entregados',brigadas:'Brigadas de emergencia',bonos:'Bonos de contingencia'};
 const pal=['#b9d8e9','#83b9d5','#488ab9','#28628f','#113d68'];
 const pin=L.layerGroup().addTo(map);let mode='amenazas',units=[],exposure=[],operations={kits:[],bonos:[]},series=[],esmeraldas=null,centers={},historicalMode='sitrep',indicator='familias',month='noviembre',bonusMetric='cobrados',stock=null,brigades=[],shelters=[],shelterModality='',shelterQualification='';
 const selected=x=>(!$('province').value||norm(x.p)===norm($('province').value))&&(!$('canton').value||!x.c||norm(x.c)===norm($('canton').value))&&(!$('parish').value||!x.r||norm(x.r)===norm($('parish').value));
@@ -113,7 +113,7 @@ function render(){pin.clearLayers();hideFlood();$('module-heading').textContent=
   circles(Object.fromEntries(a.map(x=>[x.p,x.v[mi]])),'Stock mínimo referencial por provincia','kits');
   $('module-description').textContent='Niveles de reserva mensual no acumulables. La suma de los cinco meses es únicamente ilustrativa: no representa una necesidad de compra acumulada. '+scopeNote(a);
  }else if(mode==='eventos'){
-  eventControls();$('module-tag').textContent='SITREP oficiales · acumulados sujetos a revisión';
+  eventControls();$('module-tag').textContent='SITREP · afectaciones registradas y seguimiento interinstitucional';$('module-description').textContent='Los SITREP consolidan información de distintas entidades. Este panel presenta afectaciones y evolución registrada; las acciones de respuesta por institución se incorporarán únicamente con datos y atribuciones verificadas. No atribuir estas cifras exclusivamente a la SNGR ni al MTDH.';
   if(historicalMode==='sitrep'){
 
    const a=series.filter(selected),k=month==='acumulado'?'nov_acum':month;
@@ -131,8 +131,8 @@ function render(){pin.clearLayers();hideFlood();$('module-heading').textContent=
  }
  if(mode!=='amenazas'&&mode!=='unidades'&&mode!=='poblacion')$('map-status').textContent=title[mode]+' · '+([$('province').value,$('canton').value,$('parish').value].filter(Boolean).join(' · ')||'Ecuador');
 }
-function choose(topic){mode=topic;document.querySelectorAll('.modules button').forEach(b=>{b.classList.toggle('chosen',b.dataset.topic===topic);b.setAttribute('aria-pressed',String(b.dataset.topic===topic))});render();setTimeout(()=>map.invalidateSize(),100)}
-document.querySelectorAll('.modules button').forEach(b=>b.addEventListener('click',()=>choose(b.dataset.topic)));
+function choose(topic){mode=topic;document.querySelectorAll('.modules button[data-topic],.enos-response-submenu button[data-topic]').forEach(b=>{b.classList.toggle('chosen',b.dataset.topic===topic);b.setAttribute('aria-pressed',String(b.dataset.topic===topic))});render();setTimeout(()=>map.invalidateSize(),100)}
+document.querySelectorAll('.modules button[data-topic],.enos-response-submenu button[data-topic]').forEach(b=>b.addEventListener('click',()=>choose(b.dataset.topic)));
 ['province','canton','parish','threat-select','unit-service','unit-modality','exposure-select','exposed-only'].forEach(id=>$(id).addEventListener('change',()=>{setTimeout(()=>{refreshControls();render()},120)}));
 window.addEventListener('enos:territory',()=>{shelterModality='';shelterQualification='';refreshControls();render()});
 // Populate province centers from actual georeferenced unit coordinates; Galápagos remains selectable even when susceptibility polygons absent.
