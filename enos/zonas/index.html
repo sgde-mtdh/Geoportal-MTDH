@@ -370,6 +370,30 @@ body.cartographic-print-mode .sheet-side h3{font-size:17px!important}
 .surface-values{grid-template-columns:repeat(3,minmax(0,1fr))!important}
 .surface-values>div:not([hidden]){min-width:0!important}
 @media(max-width:700px){.surface-values{grid-template-columns:1fr!important}}
+</style><style id="compact-kpi-cards-v9">
+/* KPI compactos: conservar la alineación del valor aunque el título ocupe dos líneas. */
+.diagnostic-kpis .diagnostic-grid,.diagnostic-kpis .surface-values{align-items:stretch!important;gap:12px!important}
+.diagnostic-kpis .diagnostic-card,.diagnostic-kpis .surface-values>div:not([hidden]){
+display:grid!important;grid-template-rows:36px auto!important;align-content:start!important;align-items:start!important;
+gap:5px!important;min-height:0!important;height:auto!important;padding:12px 15px 11px!important;box-sizing:border-box!important
+}
+.diagnostic-kpis .diagnostic-card>span,.diagnostic-kpis .surface-values>div>span{
+display:block!important;min-height:0!important;height:auto!important;max-height:36px!important;overflow:hidden!important;
+margin:0!important;font:700 13px/1.3 Barlow,Arial,sans-serif!important
+}
+.diagnostic-kpis .diagnostic-card>strong,.diagnostic-kpis .surface-values>div>strong{
+display:block!important;align-self:start!important;margin:0!important;line-height:1.05!important
+}
+.diagnostic-kpis .diagnostic-card>small{display:none!important}
+.diagnostic-kpis .surface-values>div>small{display:block!important;margin:0!important;font-size:12px!important;line-height:1.1!important}
+.diagnostic-kpis .supplementary{margin-top:14px!important;padding-top:14px!important}
+.diagnostic-kpis .diagnostic-caption,.diagnostic-kpis .surface-heading{margin-bottom:9px!important}
+.diagnostic-kpis .unified-source{margin-top:12px!important}
+.diagnostic-kpis .surface-values>div[hidden]{display:none!important}
+@media(max-width:760px){
+.diagnostic-kpis .diagnostic-card,.diagnostic-kpis .surface-values>div:not([hidden]){grid-template-rows:auto auto!important}
+.diagnostic-kpis .diagnostic-card>span,.diagnostic-kpis .surface-values>div>span{max-height:none!important}
+}
 </style></head><body><script>if(new URLSearchParams(location.search).get('integrado')==='1')document.body.classList.add('visualizador-integrado');</script><nav aria-label="Navegación del Geoportal" style="position:sticky;top:0;z-index:9999;display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:10px 24px;background:#102344;border-bottom:1px solid #668bb4;font:700 15px Barlow,Arial,sans-serif"><a href="../../index.html" target="_top" style="color:#fff;text-decoration:none;padding:10px 14px;border:1px solid #7199c4;border-radius:9px">← Menú principal</a><a href="../index.html" target="_top" style="color:#fff;text-decoration:none;padding:10px 14px;border:1px solid #7199c4;border-radius:9px">← Menú ENOS</a><a href="../../servicios/index.html" target="_top" style="color:#fff;text-decoration:none;padding:10px 14px;border:1px solid #7199c4;border-radius:9px">Servicios para la ciudadanía</a></nav>
 <main class="wrap" style="padding:10px 24px;max-width:none"><div class="threat-controls"><strong>Zonas susceptibles ante el Evento El Niño 2026–2027</strong><div><button class="tab active" data-threat="inundaciones">Inundaciones</button> <button class="tab" data-threat="movimientos">Movimientos en masa</button></div></div>
 <section class="panel compact-filter-panel"><div class="filters"><div><label for="province">Provincia</label><select id="province"><option value="">Todas las provincias</option></select></div><div><label for="canton">Cantón</label><select id="canton" disabled><option value="">Todos los cantones</option></select></div><div><label for="parish">Parroquia</label><select id="parish" disabled><option value="">Todas las parroquias</option></select></div><div><label for="category">Susceptibilidad</label><select id="category"><option value="">Todos los niveles</option></select></div><div class="filter-action"><button id="clear-filters" class="secondary-btn" type="button">✕ Limpiar filtros</button></div></div></section>
