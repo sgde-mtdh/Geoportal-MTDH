@@ -74,6 +74,23 @@ $('parish').addEventListener('change',e=>{state.parish=e.target.value;refresh(tr
 $('category').addEventListener('change',e=>{state.category=e.target.value;refresh(false)});
 $('home').addEventListener('click',()=>{state.province='';state.canton='';state.parish='';state.category='';refresh(true)});
 $('clear-filters').addEventListener('click',()=>{state.province='';state.canton='';state.parish='';state.category='';refresh(true)});
-$('print-map').addEventListener('click',()=>{const territory=$('territory-title').textContent;const threat=state.threat==='inundaciones'?'inundaciones':'movimientos en masa';$('print-header').textContent=`ECUADOR · EVENTO EL NIÑO 2026–2027 | Susceptibilidad a ${threat} | ${territory} | Generado: ${new Date().toLocaleDateString('es-EC')} | ${state.threat==='movimientos'?(state.province?(state.canton||state.parish?'Superficies cantonales y parroquiales estimadas; geometrías simplificadas.':'Superficie provincial calculada por intersección con cartografía original SNGR; geometrías visuales simplificadas.'):'Superficie nacional de referencia según Shape_Area de la capa original SNGR; geometrías visuales simplificadas.'):'Superficies estimadas del módulo de inundaciones; geometrías simplificadas.'}`;map.invalidateSize();setTimeout(()=>window.print(),350)});window.addEventListener('afterprint',()=>{map.invalidateSize();drawOutline(false)});$('basemap').addEventListener('change',e=>{map.removeLayer(base);base=bases[e.target.value].addTo(map);base.bringToBack()});
+let printRestore=null;
+function restoreMap(){if(!printRestore)return;const {parent,next}=printRestore;const mapbox=document.querySelector('#sheet-map-slot .mapbox');if(mapbox){if(next&&next.parentNode===parent)parent.insertBefore(mapbox,next);else parent.appendChild(mapbox)}printRestore=null;setTimeout(()=>{map.invalidateSize();drawOutline(false)},120)}
+$('print-map').addEventListener('click',()=>{
+ if(printRestore)return;
+ const mapbox=document.querySelector('.layout .mapbox'),slot=$('sheet-map-slot');
+ printRestore={parent:mapbox.parentNode,next:mapbox.nextSibling};
+ $('sheet-title').textContent='Mapa de susceptibilidad a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');
+ $('sheet-territory').textContent=$('territory-title').textContent;
+ $('sheet-legend').innerHTML=$('legend-items').innerHTML;
+ $('sheet-date').textContent='Elaboración: '+new Date().toLocaleDateString('es-EC');
+ $('sheet-source').textContent='Fuente: SNGR · Cartografía de susceptibilidad · '+(state.threat==='movimientos'?'EPSG:32717 · visualización generalizada':'superficies indicativas')+' · límites administrativos 2024';
+ slot.appendChild(mapbox);
+ map.invalidateSize();
+ setTimeout(()=>{map.invalidateSize();window.print()},500);
+ setTimeout(restoreMap,4500);
+});
+window.addEventListener('afterprint',restoreMap);
+$('basemap').addEventListener('change',e=>{map.removeLayer(base);base=bases[e.target.value].addTo(map);base.bringToBack()});
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{state.threat=b.dataset.threat;state.category='';document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));$('map-title').textContent='Susceptibilidad a '+(state.threat==='inundaciones'?'inundaciones':'movimientos en masa');refresh(false)}));
 Promise.all([getJSON('capas/territorios.json'),getJSON('capas/superficies.json'),getJSON('capas/provincias.geojson'),getJSON('capas/cantones.geojson'),getJSON('capas/parroquias.geojson')]).then(([admin,stats,provinces,cantones,parroquias])=>{Object.assign(state,{admin,stats,bounds:{provincias:provinces,cantones,parroquias}});refresh(true)}).catch(e=>{$('status').textContent='Error al iniciar: '+e.message;console.error(e)});
