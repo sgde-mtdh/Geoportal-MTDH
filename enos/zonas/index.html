@@ -577,6 +577,35 @@ body main.wrap{width:420mm!important;height:297mm!important;margin:0!important;p
 .diagnostic-kpis .diagnostic-caption::before,.diagnostic-kpis .supplementary .surface-heading::before{content:""!important;display:block!important;position:static!important;flex:0 0 5px!important;width:5px!important;height:29px!important;background:#9ed3f2!important;border-radius:3px!important;margin:0!important}
 .diagnostic-kpis .supplementary{border-top:1px solid #6c8aab!important;margin-top:16px!important;padding-top:14px!important}
 @media(max-width:650px){.diagnostic-kpis .diagnostic-caption,.diagnostic-kpis .supplementary .surface-heading{font-size:17px!important;min-height:27px!important;gap:10px!important}.diagnostic-kpis .diagnostic-caption::before,.diagnostic-kpis .supplementary .surface-heading::before{height:25px!important}}
+</style><style id="sheet-layout-fix-20261115">
+/* Corrección exclusiva de la lámina cartográfica: vista previa y PDF. */
+#cartographic-sheet .sheet-title{gap:18px!important}
+#cartographic-sheet #sheet-territory{display:block!important;font:800 17px/1.25 Barlow,Arial,sans-serif!important;color:#153e64!important;background:#eaf1f7!important;border-left:4px solid #153e64!important;padding:10px 16px!important;max-width:48%!important;text-align:right!important;overflow-wrap:break-word!important}
+#cartographic-sheet .sheet-foot-cell{min-width:0!important;overflow-wrap:normal!important;word-break:normal!important}
+#cartographic-sheet .sheet-foot-cell span{overflow-wrap:break-word!important;word-break:normal!important}
+@media screen{
+body.cartographic-print-mode #cartographic-sheet{height:1123px!important;min-height:1123px!important}
+body.cartographic-print-mode #cartographic-sheet .sheet-title{align-items:center!important;flex:none!important;min-height:90px!important}
+body.cartographic-print-mode #cartographic-sheet .sheet-grid{display:grid!important;grid-template-columns:minmax(0,1fr) 310px!important;grid-template-rows:minmax(0,1fr) 92px!important;grid-template-areas:"map side" "foot side"!important;gap:14px!important;flex:1!important;min-height:0!important}
+body.cartographic-print-mode #sheet-map-slot{grid-area:map!important;min-height:0!important;height:100%!important;position:relative!important;background:#e8f1f7!important}
+body.cartographic-print-mode #sheet-map-slot>.mapbox{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important}
+body.cartographic-print-mode #sheet-map-slot #map{height:100%!important;width:100%!important;min-height:0!important}
+body.cartographic-print-mode .sheet-foot{grid-area:foot!important;display:grid!important;grid-template-columns:1.3fr 1.2fr 1fr!important;gap:0!important;margin:0!important;padding:0!important;border:1px solid #b6c4d0!important;min-height:0!important}
+body.cartographic-print-mode .sheet-foot-cell{padding:10px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;text-align:center!important}
+body.cartographic-print-mode .sheet-foot-cell+.sheet-foot-cell{border-left:1px solid #b6c4d0!important}
+body.cartographic-print-mode .sheet-foot-cell b{font-size:12px!important}
+body.cartographic-print-mode .sheet-foot-cell span{font-size:11px!important;line-height:1.25!important}
+body.cartographic-print-mode .sheet-side{grid-area:side!important;min-width:0!important;min-height:0!important;overflow:hidden!important;padding:0!important}
+body.cartographic-print-mode .sheet-insets{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+body.cartographic-print-mode .sheet-insets h4{font-size:11px!important;text-align:center!important}
+body.cartographic-print-mode .inset-map{height:150px!important;min-height:150px!important}
+}
+@media print{
+#cartographic-sheet #sheet-map-slot>.mapbox{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
+#cartographic-sheet #sheet-map-slot #map{width:100%!important;height:100%!important}
+#cartographic-sheet .sheet-title #sheet-territory{font-size:14pt!important;max-width:48%!important;text-align:right!important;padding:2mm 4mm!important}
+#cartographic-sheet .sheet-foot-cell span{font-size:9pt!important;line-height:1.2!important}
+}
 </style></head><body><script>if(new URLSearchParams(location.search).get('integrado')==='1')document.body.classList.add('visualizador-integrado');</script><nav aria-label="Navegación del Geoportal" style="position:sticky;top:0;z-index:9999;display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:10px 24px;background:#102344;border-bottom:1px solid #668bb4;font:700 15px Barlow,Arial,sans-serif"><a href="../../index.html" target="_top" style="color:#fff;text-decoration:none;padding:10px 14px;border:1px solid #7199c4;border-radius:9px">← Menú principal</a><a href="../index.html" target="_top" style="color:#fff;text-decoration:none;padding:10px 14px;border:1px solid #7199c4;border-radius:9px">← Menú ENOS</a><a href="../../servicios/index.html" target="_top" style="color:#fff;text-decoration:none;padding:10px 14px;border:1px solid #7199c4;border-radius:9px">Servicios para la ciudadanía</a></nav>
 <main class="wrap" style="padding:10px 24px;max-width:none"><div class="threat-controls"><strong>Zonas susceptibles ante el Evento El Niño 2026–2027</strong><div><button class="tab active" data-threat="inundaciones">Inundaciones</button> <button class="tab" data-threat="movimientos">Movimientos en masa</button></div></div>
 <section class="panel compact-filter-panel"><div class="filters"><div><label for="province">Provincia</label><select id="province"><option value="">Todas las provincias</option></select></div><div><label for="canton">Cantón</label><select id="canton" disabled><option value="">Todos los cantones</option></select></div><div><label for="parish">Parroquia</label><select id="parish" disabled><option value="">Todas las parroquias</option></select></div><div><label for="category">Susceptibilidad</label><select id="category"><option value="">Todos los niveles</option></select></div><div class="filter-action"><button id="clear-filters" class="secondary-btn" type="button">✕ Limpiar filtros</button></div></div></section>
