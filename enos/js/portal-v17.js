@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id),fmt=x=>Number(x||0).toLocaleString('es-EC',{maximumFractionDigits:0}),money=x=>Number(x||0).toLocaleString('es-EC',{minimumFractionDigits:2,maximumFractionDigits:2}),norm=x=>String(x||'').trim().toLocaleUpperCase('es-EC');
 const title={amenazas:'Zonas susceptibles',unidades:'Unidades de atención expuestas',poblacion:'Población potencialmente expuesta',proyeccion:'Proyección de kits mínimos',alojamientos:'Alojamientos temporales identificados',eventos:'Eventos, afectaciones y respuesta interinstitucional',kits:'Kits entregados',brigadas:'Brigadas de emergencia',bonos:'Bonos de contingencia'};
 const pal=['#b9d8e9','#83b9d5','#488ab9','#28628f','#113d68'];
-const pin=L.layerGroup().addTo(map);let mode='amenazas',units=[],exposure=[],operations={kits:[],bonos:[]},series=[],esmeraldas=null,centers={},historicalMode='sitrep',indicator='familias',month='noviembre',bonusMetric='cobrados',stock=null,brigades=[],shelters=[],shelterModality='',shelterQualification='';
+const pin=L.layerGroup().addTo(map);let sitrep87=null,provinceGeometry=null,territoryLayer=null,sitrepMetric='impactadas';let mode='amenazas',units=[],exposure=[],operations={kits:[],bonos:[]},series=[],esmeraldas=null,centers={},historicalMode='territorial',indicator='familias',month='noviembre',bonusMetric='cobrados',stock=null,brigades=[],shelters=[],shelterModality='',shelterQualification='';
 const selected=x=>(!$('province').value||norm(x.p)===norm($('province').value))&&(!$('canton').value||!x.c||norm(x.c)===norm($('canton').value))&&(!$('parish').value||!x.r||norm(x.r)===norm($('parish').value));
 const scopeNote=a=>($('canton').value||$('parish').value)&&a.some(x=>!x.c)?'Los registros de este indicador solo tienen desglose provincial. Los filtros de cantón y parroquia no se aplican a esos registros.':'';
 const ex=v=>['MEDIA','ALTA','MUY ALTA'].includes(norm(v));const threat=()=>$('threat-select').value;
@@ -42,10 +42,30 @@ function refreshControls(){
  const byModality=byService.filter(x=>!$('unit-modality').value||x.m===$('unit-modality').value);
  fill('exposure-select',byModality.map(x=>x[threat()]).filter(x=>x&&x!=='-'&&!['SIN','NO APLICABLE'].includes(norm(x))),'Todas');
 }
-function eventControls(){const wrap=$('enos-subcontrols');wrap.hidden=false;wrap.innerHTML=`<label for="event-view">Análisis</label><select id="event-view"><option value="sitrep">Seguimiento El Niño 2026 · SITREP</option><option value="esmeraldas">Detalle cantonal · Esmeraldas</option><option value="historico">Histórico desde 2010 · en depuración</option></select><label for="event-month">Período</label><select id="event-month"><option value="septiembre">Septiembre</option><option value="octubre">Octubre</option><option value="noviembre">Noviembre (01–07)</option><option value="acumulado">Acumulado al 07/11</option></select><small id="event-method"></small>`;
- $('event-view').value=historicalMode;$('event-month').value=month;
+function eventControls(){const wrap=$('enos-subcontrols');wrap.hidden=false;wrap.innerHTML=`<label for="event-view">Análisis</label><select id="event-view"><option value="territorial">Mapa provincial · SITREP 87 (parcial)</option><option value="sitrep">Serie histórica · cortes SITREP 14, 65 y 77</option><option value="esmeraldas">Detalle cantonal · Esmeraldas</option><option value="historico">Histórico desde 2010 · en depuración</option></select><label for="sitrep-metric">Representar en mapa</label><select id="sitrep-metric"><option value="impactadas">Personas impactadas</option><option value="eventos">Eventos registrados</option></select><label for="event-month">Período</label><select id="event-month"><option value="septiembre">Septiembre</option><option value="octubre">Octubre</option><option value="noviembre">Noviembre (01–07)</option><option value="acumulado">Acumulado al 07/11</option></select><small id="event-method"></small>`;
+ $('event-view').value=historicalMode;$('event-month').value=month;$('sitrep-metric').value=sitrepMetric;$('sitrep-metric').onchange=e=>{sitrepMetric=e.target.value;render()};$('event-month').disabled=historicalMode==='territorial';
  $('event-view').onchange=e=>{historicalMode=e.target.value;render()};$('event-month').onchange=e=>{month=e.target.value;render()};}
-function render(){pin.clearLayers();hideFlood();$('module-heading').textContent=title[mode];$('module-description').textContent='';$('module-tag').textContent='';$('enos-subcontrols').hidden=true;$('enos-subcontrols').innerHTML='';$('unit-controls').hidden=!['unidades','poblacion'].includes(mode);
+function sitrepTerritorial(){
+ const el=$('module-metrics'),p=$('province').value,c=$('canton').value,r=$('parish').value;
+ const row=sitrep87?.rows.find(x=>norm(x.provincia)===norm(p));
+ const noDetail=Boolean(c||r),national=!p;
+ const info=national?sitrep87?.national:row;
+ const k=(key)=>noDetail||!info||info[key]==null?'Sin dato':info[key];
+ el.innerHTML=card('Eventos adversos registrados',k('eventos'))+card('Personas impactadas',k('impactadas'))+card('Familias afectadas',k('familias_afectadas'))+card('Familias damnificadas',k('familias_damnificadas'));
+ $('module-tag').textContent='SITREP 87 · 13/11/2026, 15:00 · acumulado desde 29/08';
+ $('module-description').textContent='Mapa provincial de afectaciones, no mapa de ubicación exacta de eventos. La tabla provincial disponible en esta versión es parcial (7 provincias); el total nacional es independiente y no debe obtenerse sumando estas provincias. Sin dato no equivale a cero. No se atribuyen las afectaciones exclusivamente a la SNGR.';
+ $('event-method').textContent='Fuente: SNGR, SITREP 87. Las cifras de familias provinciales y los valores cantonales/parroquiales no se publican aquí sin validación. Selecciona una provincia en el mapa para consultar sus cifras.';
+ const data=sitrep87?.rows||[],key=sitrepMetric,vals=data.map(x=>x[key]),max=Math.max(1,...vals);
+ const bands=[0,.2,.4,.6,.8,1],palette=['#dbeaf4','#9ec6e0','#5b9bc6','#286fa7','#0b3b73'];
+ const getColor=v=>palette[Math.min(4,Math.floor((v/max)*5))];
+ legend(key==='impactadas'?'Personas impactadas':'Eventos registrados',palette.map((color,i)=>[color,i===4?'Más de '+fmt(max*.8):fmt(Math.round(max*i/5))+' a '+fmt(Math.round(max*(i+1)/5))]),'Solo siete provincias con datos validados en esta versión; gris = información pendiente, no cero. La intensidad representa cantidades absolutas.');
+ if(territoryLayer){map.removeLayer(territoryLayer);territoryLayer=null}
+ if(!provinceGeometry){$('map-status').textContent='Cargando límites provinciales…';return}
+ territoryLayer=L.geoJSON(provinceGeometry,{style:f=>{const x=data.find(d=>norm(d.provincia)===norm(f.properties.name));const active=!p||norm(p)===norm(f.properties.name);return{color:active?'#f5f9fc':'#a1b4c6',weight:active?1.5:.6,fillColor:x?getColor(x[key]):'#cdd2d7',fillOpacity:active?.82:.18}},onEachFeature:(f,layer)=>{const name=f.properties.name,x=data.find(d=>norm(d.provincia)===norm(name));layer.bindPopup('<b>'+name+'</b><br>'+(x?'Eventos: '+fmt(x.eventos)+'<br>Personas impactadas: '+fmt(x.impactadas):'Información provincial pendiente')+'<br><small>SITREP 87 · corte 13/11/2026</small>');layer.on('click',()=>{const sel=$('province');if([...sel.options].some(o=>norm(o.value)===norm(name))){sel.value=[...sel.options].find(o=>norm(o.value)===norm(name)).value;sel.dispatchEvent(new Event('change',{bubbles:true}));}})}}).addTo(map);
+ if(p){const l=territoryLayer.getLayers().find(x=>norm(x.feature?.properties?.name)===norm(p));if(l)map.fitBounds(l.getBounds(),{padding:[18,18],maxZoom:9})}else map.fitBounds(territoryLayer.getBounds(),{padding:[12,12]});
+ $('map-status').textContent=(p||'Ecuador')+' · '+(key==='impactadas'?'personas impactadas':'eventos registrados')+' · SITREP 87 · cobertura provincial parcial';
+}
+function render(){pin.clearLayers();if(territoryLayer){map.removeLayer(territoryLayer);territoryLayer=null}hideFlood();$('module-heading').textContent=title[mode];$('module-description').textContent='';$('module-tag').textContent='';$('enos-subcontrols').hidden=true;$('enos-subcontrols').innerHTML='';$('unit-controls').hidden=!['unidades','poblacion'].includes(mode);
  const integrated=mode==='amenazas';document.body.classList.toggle('enos-zonas-activas',integrated);$('amenazas-visualizador').style.display=integrated?'block':'none';$('module-dashboard').style.display=integrated?'none':'';document.querySelector('.workspace').style.display=integrated?'none':'';if(integrated){$('map-status').textContent='Visualizador territorial integrado';return;}
  const el=$('module-metrics');let values={};
  if(mode==='amenazas'){
@@ -114,7 +134,7 @@ function render(){pin.clearLayers();hideFlood();$('module-heading').textContent=
   $('module-description').textContent='Niveles de reserva mensual no acumulables. La suma de los cinco meses es únicamente ilustrativa: no representa una necesidad de compra acumulada. '+scopeNote(a);
  }else if(mode==='eventos'){
   eventControls();$('module-tag').textContent='SITREP · afectaciones registradas y seguimiento interinstitucional';$('module-description').textContent='Los SITREP consolidan información de distintas entidades. Este panel presenta afectaciones y evolución registrada; las acciones de respuesta por institución se incorporarán únicamente con datos y atribuciones verificadas. No atribuir estas cifras exclusivamente a la SNGR ni al MTDH.';
-  if(historicalMode==='sitrep'){
+  if(historicalMode==='territorial'){sitrepTerritorial();}else if(historicalMode==='sitrep'){
 
    const a=series.filter(selected),k=month==='acumulado'?'nov_acum':month;
    const total=sum(a,k);el.innerHTML=card('Variación neta de familias · '+(month==='acumulado'?'acumulado':month),total)+card('Provincias con registro',a.filter(x=>Number(x[k])>0).length)+card('Acumulado nacional 07/11',sum(series,'nov_acum'))+card('Cortes nacionales utilizados',3);
@@ -144,6 +164,8 @@ Promise.allSettled([
  load('exposicion_ua_0926.json',e=>{exposure=e;refreshControls();render()}),
  load('operativo_territorial.json',o=>{operations=o;render()}),
  load('serie_familias_2026.json',s=>{series=s.rows||[];render()}),
+ load('sitrep_87_provincial_parcial.json',s=>{sitrep87=s;render()}),
+ fetch('zonas/capas/provincias.geojson').then(r=>{if(!r.ok)throw Error('Límites provinciales');return r.json()}).then(s=>{provinceGeometry=s;render()}).catch(e=>console.warn('No se pudieron cargar límites provinciales',e)),
  load('sitrep_esmeraldas_53.json',es=>{esmeraldas=es;render()}),
  load('stock_minimo_validado.json',s=>{stock=s;render()}),
  load('brigadas_emergencia_enos.json',s=>{brigades=s.rows||[];render()}),
