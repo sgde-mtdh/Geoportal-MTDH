@@ -181,4 +181,4 @@ if(new URLSearchParams(location.search).get('modulo')==='unidades'){
  window.addEventListener('load',()=>{document.querySelector('button[data-topic="unidades"]')?.click();show()});
 }
 })();
-</script></body></html>
+</script><script id="units-standalone-navigation-v1">document.querySelectorAll('.modules button[data-topic="unidades"]').forEach(button=>button.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();window.location.href='unidades/index.html';},true));</script></body></html>
