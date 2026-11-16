@@ -1,0 +1,178 @@
+{
+  "metadatos": {
+    "kobo": "Entregas registradas en Kobo hasta el 9 de noviembre de 2026",
+    "nuevo": "Egresos = kits entregados, reporte 12–15 de noviembre de 2026",
+    "nota": "Fuentes separadas; no se suman sin conciliación del cambio de sistema",
+    "detalle": "Consolidado provincial; los registros territoriales detallados se integrarán tras validar la conciliación"
+  },
+  "provincias": [
+    {
+      "provincia": "AZUAY",
+      "kobo": 1506,
+      "egresos": 0,
+      "disponibles": 0,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "BOLIVAR",
+      "kobo": 381,
+      "egresos": 305,
+      "disponibles": 195,
+      "stock_inicial": 500
+    },
+    {
+      "provincia": "CANAR",
+      "kobo": 3,
+      "egresos": 0,
+      "disponibles": 0,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "CARCHI",
+      "kobo": 1682,
+      "egresos": 3,
+      "disponibles": 547,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "CHIMBORAZO",
+      "kobo": 7,
+      "egresos": 0,
+      "disponibles": 568,
+      "stock_inicial": 568
+    },
+    {
+      "provincia": "COTOPAXI",
+      "kobo": 251,
+      "egresos": 0,
+      "disponibles": 0,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "EL ORO",
+      "kobo": 589,
+      "egresos": 0,
+      "disponibles": 800,
+      "stock_inicial": 800
+    },
+    {
+      "provincia": "ESMERALDAS",
+      "kobo": 4314,
+      "egresos": 5484,
+      "disponibles": 31,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "GALAPAGOS",
+      "kobo": 1707,
+      "egresos": 1655,
+      "disponibles": 267,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "GUAYAS",
+      "kobo": 10631,
+      "egresos": 12130,
+      "disponibles": 1700,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "IMBABURA",
+      "kobo": 499,
+      "egresos": 0,
+      "disponibles": 150,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "LOJA",
+      "kobo": 79,
+      "egresos": 0,
+      "disponibles": 0,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "LOS RIOS",
+      "kobo": 514,
+      "egresos": 50,
+      "disponibles": 2950,
+      "stock_inicial": 3000
+    },
+    {
+      "provincia": "MANABI",
+      "kobo": 452,
+      "egresos": 0,
+      "disponibles": 0,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "MORONA SANTIAGO",
+      "kobo": 205,
+      "egresos": 0,
+      "disponibles": 211,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "NAPO",
+      "kobo": 180,
+      "egresos": 0,
+      "disponibles": 0,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "ORELLANA",
+      "kobo": 0,
+      "egresos": 0,
+      "disponibles": 0,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "PASTAZA",
+      "kobo": 8,
+      "egresos": 0,
+      "disponibles": 0,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "PICHINCHA",
+      "kobo": 64,
+      "egresos": 0,
+      "disponibles": 0,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "SANTA ELENA",
+      "kobo": 1318,
+      "egresos": 1045,
+      "disponibles": 355,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "SANTO DOMINGO",
+      "kobo": 17,
+      "egresos": 0,
+      "disponibles": 0,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "SUCUMBIOS",
+      "kobo": 44,
+      "egresos": 0,
+      "disponibles": 0,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "TUNGURAHUA",
+      "kobo": 19,
+      "egresos": 0,
+      "disponibles": 0,
+      "stock_inicial": 0
+    },
+    {
+      "provincia": "ZAMORA CHINCHIPE",
+      "kobo": 11,
+      "egresos": 0,
+      "disponibles": 20,
+      "stock_inicial": 10
+    }
+  ]
+}
