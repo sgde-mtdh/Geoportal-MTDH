@@ -152,7 +152,7 @@ $('pdf').addEventListener('click',()=>{
  if(printing)return;
  const selected=filtered();if(!selected.length){alert('No existen unidades para los filtros seleccionados.');return}
  printing=true;restoreState={center:map.getCenter(),zoom:map.getZoom(),parent:document.getElementById('map').parentNode,next:document.getElementById('map').nextSibling};
- const territory=[$('province').value,$('canton').value,$('parish').value].filter(Boolean).join(' · ')||'Ecuador';
+ const territory=[$('province').value,$('canton').value,$('parish').value].filter(Boolean).join(' · ')||'Ecuador continental';
  $('sheet-title').textContent='Unidades de atención y alerta por lluvias y tormentas · '+territory;
  $('sheet-territory').textContent=territory;
  $('sheet-date').textContent=new Date().toLocaleString('es-EC',{dateStyle:'long',timeStyle:'short'});
@@ -161,8 +161,9 @@ $('pdf').addEventListener('click',()=>{
  document.body.classList.add('sheet-print-mode');
  const frame=()=>{
  map.invalidateSize({pan:false});
- const b=boundsFor(selected);
- if(b)map.fitBounds(b,{padding:[32,32],maxZoom:$('parish').value?15:$('canton').value?13:$('province').value?11:8,animate:false});
+ const national=!$('province').value&&!$('canton').value&&!$('parish').value;
+ const b=national?L.latLngBounds([[-5.05,-81.3],[1.55,-75.1]]):boundsFor(selected);
+ if(b)map.fitBounds(b,{padding:[32,32],maxZoom:national?8:$('parish').value?15:$('canton').value?13:11,animate:false});
  else zoomTerritory();
  };
  requestAnimationFrame(()=>{setTimeout(()=>{frame();setTimeout(()=>{frame();map.invalidateSize({pan:false});setTimeout(()=>window.print(),1250)},900)},250)});
