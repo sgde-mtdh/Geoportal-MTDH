@@ -24,11 +24,26 @@ const group=L.markerClusterGroup({maxClusterRadius:42,iconCreateFunction:g=>L.di
 let rows=[],markers=[];const $=id=>document.getElementById(id);
 let parishPolygons=null;
 function propsOf(f){return f.properties||{}}
-function parishName(f){const p=propsOf(f);return String(p.parroquia||p.PARROQUIA||p.DPA_DESPAR||p.dpa_despar||p.NOM_PAR||p.NOM_PARROQ||p.name||p.NAME_3||p.NAME_2||p.nombre||p.NOMBRE||'')}
-function cantonName(f){const p=propsOf(f);return String(p.canton||p.CANTON||p.DPA_DESCAN||p.dpa_descan||p.NOM_CANTON||p.NAME_2||'')}
-function reported(name){const n=norm(name).replace(/^DR\\.? /,'DOCTOR ');return flooded.some(v=>n===norm(v)||n.startsWith(norm(v)+' (')||n.startsWith(norm(v)+' CAB')||n===norm(aliases[v]||v))}
-function paintParishes(geo){const features=geo.features||[];const bab=features.filter(f=>norm(cantonName(f))==='BABAHOYO'||(!cantonName(f)&&reported(parishName(f))));if(!bab.length){$('status').textContent+=' · No se pudo identificar la geometría parroquial de Babahoyo.';return}parishPolygons=L.geoJSON({type:'FeatureCollection',features:bab},{pane:'floodParishes',interactive:false,style:f=>reported(parishName(f))?{color:'#a50c21',weight:2.2,fillColor:'#e02d3f',fillOpacity:.70}:{color:'#19436b',weight:1.4,fillColor:'#fff',fillOpacity:0}}).addTo(map);const names=[...new Set(bab.filter(f=>reported(parishName(f))).map(parishName))];$('status').textContent+=' · '+names.length+' polígonos parroquiales con reportes resaltados en rojo. Las zonas rojas representan parroquias con reportes, no superficie efectivamente inundada.';if(!names.length)console.warn('No coincidieron nombres de parroquias',bab.slice(0,5).map(x=>x.properties))}
-async function loadParishes(){try{const response=await fetch('../zonas/capas/parroquias.geojson');if(!response.ok)throw Error('HTTP '+response.status);const geo=await response.json();paintParishes(geo)}catch(e){console.error('Cartografía parroquial',e);$('status').textContent+=' · No se pudo cargar la cartografía parroquial.'}}
+function findProperty(f,terms){const p=propsOf(f);for(const [k,v] of Object.entries(p)){const key=norm(k);if(terms.some(t=>key.includes(t))&&typeof v==='string'&&v.trim())return v}return ''}
+function parishName(f){return findProperty(f,['DESPAR','PARROQ','NOM_PAR','NAME_3'])||String(propsOf(f).name||propsOf(f).NOMBRE||'')}
+function cantonName(f){return findProperty(f,['DESCAN','CANTON','NOM_CAN','NAME_2'])}
+function reported(name){const n=norm(name).replace(/^DR\\.? /,'DOCTOR ').replace(/\\s+/g,' ');return flooded.some(v=>n===norm(v)||n.startsWith(norm(v)+' (')||n.startsWith(norm(v)+' CAB')||n===norm(aliases[v]||v))}
+function containsPoint(feature,lat,lng){const g=feature.geometry;if(!g)return false;const polygons=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];function inRing(r){let inside=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const xi=r[i][0],yi=r[i][1],xj=r[j][0],yj=r[j][1];if((yi>lat)!==(yj>lat)&&lng<(xj-xi)*(lat-yi)/(yj-yi)+xi)inside=!inside}return inside}return polygons.some(poly=>poly.length&&inRing(poly[0])&&!poly.slice(1).some(inRing))}
+function unitParishes(feature){const names=new Set();for(const x of rows){if(containsPoint(feature,+x.a,+x.o))names.add(norm(x.r))}return [...names]}
+function paintParishes(geo){
+ const features=geo.features||[];
+ const bab=features.filter(f=>norm(cantonName(f))==='BABAHOYO'||reported(parishName(f))||unitParishes(f).some(n=>flooded.some(v=>norm(v)===n)));
+ if(parishPolygons){map.removeLayer(parishPolygons);parishPolygons=null}
+ if(!bab.length){$('status').textContent+=' · La cartografía parroquial no coincidió con Babahoyo; verificar atributos y coordenadas.';return}
+ let red=0;
+ parishPolygons=L.geoJSON({type:'FeatureCollection',features:bab},{pane:'floodParishes',interactive:false,style:f=>{
+ const affected=reported(parishName(f))||unitParishes(f).some(n=>reported(n));
+ if(affected)red++;
+ return affected?{color:'#b0182b',weight:2.2,fillColor:'#e02d3f',fillOpacity:.74}:{color:'#19436b',weight:1.4,fillColor:'#fff',fillOpacity:0};
+ }}).addTo(map);
+ $('status').textContent+=' · '+red+' polígonos de parroquias con reportes coloreados completamente en rojo. El rojo no representa la extensión del agua.';
+}
+async function loadParishes(){try{const response=await fetch('../zonas/capas/parroquias.geojson');if(!response.ok)throw Error('HTTP '+response.status);const geo=await response.json();paintParishes(geo)}catch(e){console.error('Cartografía parroquial',e);$('status').textContent+=' · Error al cargar límites parroquiales.'}}
 const aliases={"DOCTOR CAMILO PONCE":"DR. CAMILO PONCE","FEBRES CORDERO":"FEBRES CORDERO","LA UNION":"LA UNION"};
 const state=x=>closed.has(String(x.i))?'Cerrada':virtual.has(String(x.i))?'Virtual':pending.has(String(x.i))?'Por validar':'Sin reporte';
 const service=x=>{let a=norm(x.s||''),b=norm(x.m||'');return a.includes('CDI')||b.includes('CDI')?'CDI':a.includes('CNH')||b.includes('CNH')?'CNH':a.includes('DESARROLLO INFANTIL')?(b.includes('CRECIENDO')||b.includes('CNH')?'CNH':b.includes('CENTRO')||b.includes('CDI')?'CDI':''):''};
