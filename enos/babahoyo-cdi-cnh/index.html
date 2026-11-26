@@ -114,7 +114,7 @@ $('province').addEventListener('change',()=>{$('canton').value='';$('parish').va
 function locatorSvg(){
  const coords=provinces.flatMap(f=>{const g=f.geometry;const out=[];function visit(c){if(typeof c[0]==='number'){out.push(c);return}for(const v of c)visit(v)}visit(g.coordinates);return out});
  if(!coords.length)return '';
- const xs=coords.map(c=>c[0]),ys=coords.map(c=>c[1]),xmin=Math.min(...xs),xmax=Math.max(...xs),ymin=Math.min(...ys),ymax=Math.max(...ys);
+ let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity;for(const c of coords){xmin=Math.min(xmin,c[0]);xmax=Math.max(xmax,c[0]);ymin=Math.min(ymin,c[1]);ymax=Math.max(ymax,c[1])}
  const sx=x=>12+(x-xmin)/(xmax-xmin)*176,sy=y=>104-(y-ymin)/(ymax-ymin)*96;
  const paths=provinces.map(f=>{const rings=[];const g=f.geometry;const polygons=g.type==='Polygon'?[g.coordinates]:g.coordinates;for(const poly of polygons)for(const ring of poly){rings.push(ring.map((pt,i)=>(i?'L':'M')+sx(pt[0]).toFixed(1)+' '+sy(pt[1]).toFixed(1)).join(' ')+' Z')}return '<path d="'+rings.join(' ')+'" fill="#d8e5ef" stroke="#6789a3" stroke-width=".45"/>'}).join('');
  return '<svg viewBox="0 0 200 115" xmlns="http://www.w3.org/2000/svg">'+paths+'</svg>';
