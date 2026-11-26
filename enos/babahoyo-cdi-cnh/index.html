@@ -79,7 +79,31 @@ let alertPolygons=null,crecidaPolygons=null;
 async function hazards(){const t=++seq;risks.clearLayers();try{if(!alertPolygons||!crecidaPolygons){[alertPolygons,crecidaPolygons]=await Promise.all([get('./precipitaciones_90.geojson'),get('./posibles_crecidas_90.geojson')])}if(t!==seq)return;const value=$('hazard').value;risks.addLayer(L.geoJSON(alertPolygons,{pane:'risk',interactive:false,filter:f=>value==='all'||norm(f.properties?.Nivel)===norm(value),style:f=>palette('lluvias',f.properties)}));risks.addLayer(L.geoJSON(crecidaPolygons,{pane:'risk',interactive:false,style:f=>palette('crecidas',f.properties)}));$('status').textContent='Advertencia N.º 90: '+alertPolygons.features.length+' polígonos de precipitación y '+crecidaPolygons.features.length+' zonas de posibles crecidas.'}catch(e){if(t===seq)$('status').textContent='No se pudo cargar la cartografía de la Advertencia N.º 90. '+e.message;console.error(e)}}
 function opts(id,values,placeholder){const old=$(id).value;$(id).replaceChildren(new Option(placeholder,''));for(const v of unique(values))$(id).add(new Option(v,v));$(id).value=unique(values).includes(old)?old:''}function updateModalities(){opts('modality',rows.filter(x=>!$('mode').value||kind(x)===$('mode').value).map(x=>String(x.m||'Sin modalidad registrada')),'Todas las modalidades')}function parishOptions(){opts('parish',rows.filter(x=>(!$('province').value||norm(x.p)===norm($('province').value))&&(!$('canton').value||norm(x.c)===norm($('canton').value))).map(x=>x.r),'Todas las parroquias')}function cantonOptions(){opts('canton',rows.filter(x=>!$('province').value||norm(x.p)===norm($('province').value)).map(x=>x.c),'Todos los cantones');parishOptions()}
 $('province').addEventListener('change',()=>{$('canton').value='';$('parish').value='';cantonOptions();redraw();zoomTerritory();hazards()});$('canton').addEventListener('change',()=>{$('parish').value='';parishOptions();redraw();zoomTerritory()});function zoomTerritory(){if($('canton').value||$('parish').value){zoomTo(filtered(),$('parish').value?15:12);return}if($('province').value){const f=provinces.find(f=>norm(f.properties.name)===norm($('province').value));if(f){map.fitBounds(L.geoJSON(f).getBounds(),{padding:[25,25],maxZoom:10});return}}map.fitBounds([[-5.05,-81.3],[1.55,-75.1]],{padding:[20,20]})}$('parish').addEventListener('change',()=>{redraw();zoomTerritory()});$('mode').addEventListener('change',()=>{updateModalities();redraw();zoomTo(filtered(),13)});$('modality').addEventListener('change',()=>{redraw();zoomTo(filtered(),13)});$('hazard').addEventListener('change',hazards);$('home').addEventListener('click',()=>zoomTerritory());$('clear').addEventListener('click',()=>{$('province').value='';$('canton').value='';$('parish').value='';cantonOptions();$('mode').value='';$('modality').value='';updateModalities();$('hazard').value='all';redraw();zoomTerritory();hazards()});$('basemap').addEventListener('change',()=>{Object.values(bases).forEach(x=>map.removeLayer(x));bases[$('basemap').value].addTo(map)});let printing=false,restoreState=null;
-$('pdf').addEventListener('click',()=>{if(printing)return;printing=true;restoreState={province:$('province').value,canton:$('canton').value,parish:$('parish').value,mode:$('mode').value,modality:$('modality').value,hazard:$('hazard').value,center:map.getCenter(),zoom:map.getZoom()};for(const id of ['province','canton','parish','mode','modality'])$(id).value='';cantonOptions();updateModalities();redraw();map.invalidateSize();map.fitBounds([[-5.05,-81.3],[1.55,-75.1]],{padding:[22,22],animate:false});setTimeout(()=>{map.invalidateSize();window.print()},1100)});
-window.addEventListener('afterprint',()=>{if(!restoreState){printing=false;return}for(const id of ['province','canton','parish','mode','modality','hazard'])$(id).value=restoreState[id];cantonOptions();parishOptions();updateModalities();$('canton').value=restoreState.canton;$('parish').value=restoreState.parish;$('modality').value=restoreState.modality;redraw();map.setView(restoreState.center,restoreState.zoom,{animate:false});restoreState=null;printing=false;setTimeout(()=>map.invalidateSize(),100)});
+$('pdf').addEventListener('click',()=>{
+ if(printing)return;
+ printing=true;
+ restoreState={center:map.getCenter(),zoom:map.getZoom()};
+ const selected=filtered();
+ if(!selected.length){printing=false;restoreState=null;alert('No existen unidades para los filtros seleccionados.');return}
+ const selectedBounds=boundsFor(selected);
+ const territory=$('parish').value?'parroquia '+$('parish').value:$('canton').value?'cantón '+$('canton').value:$('province').value?'provincia '+$('province').value:'Ecuador';
+ const title=document.querySelector('.map-head h2');
+ title.dataset.previous=title.textContent;
+ title.textContent='Unidades de atención y alerta de precipitaciones · '+territory+' · INAMHI N.º 90';
+ const frame=()=>{
+  map.invalidateSize({pan:false});
+  if(selectedBounds)map.fitBounds(selectedBounds,{padding:[40,40],maxZoom:$('parish').value?15:$('canton').value?13:$('province').value?11:8,animate:false});
+  else zoomTerritory();
+ };
+ frame();
+ setTimeout(()=>{frame();setTimeout(()=>{map.invalidateSize({pan:false});window.print()},650)},350);
+});
+window.addEventListener('afterprint',()=>{
+ if(!restoreState){printing=false;return}
+ const title=document.querySelector('.map-head h2');
+ if(title.dataset.previous){title.textContent=title.dataset.previous;delete title.dataset.previous}
+ map.setView(restoreState.center,restoreState.zoom,{animate:false});
+ restoreState=null;printing=false;setTimeout(()=>map.invalidateSize({pan:false}),100);
+});
 Promise.all([get('../capas/unidades_atencion_0926.json'),get('../zonas/capas/provincias.geojson')]).then(([all,geo])=>{rows=all;provinces=geo.features;L.geoJSON(geo,{pane:'outline',interactive:false,style:{color:'#123b61',weight:1.1,fill:false}}).addTo(map);opts('province',rows.map(x=>x.p),'Todas las provincias');cantonOptions();opts('mode',rows.map(x=>kind(x)),'Todos los servicios');updateModalities();redraw();zoomTerritory();hazards();}).catch(e=>{$('status').textContent='No se pudo cargar la información: '+e.message;console.error(e)});
 </script></body></html>
